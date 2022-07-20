@@ -1,10 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
+    <!-- Theme colors -->
+    <color name="primary_color_900">#1A237E</color>
+    <color name="primary_color_800">#283593</color>
+    <color name="primary_color_700">#303F9F</color>
+    <color name="primary_color_600">#3949AB</color>
+    <color name="primary_color_500">#3F51B5</color>
+    <color name="primary_color_400">#3F51B5</color>
+    <color name="primary_color_300">#7986CB</color>
+    <color name="primary_color_200">#9FA8DA</color>
+    <color name="primary_color_100">#C5CAE9</color>
+    <color name="primary_color_50">#E8EAF6</color>
+
+    <color name="secondary_color_900">#6100C8</color>
+    <color name="secondary_color_800">#8F00D1</color>
+    <color name="secondary_color_700">#A600D6</color>
+    <color name="secondary_color_600">#BF00DB</color>
+    <color name="secondary_color_500">#D100DE</color>
+    <color name="secondary_color_400">#E100EB</color>
+    <color name="secondary_color_300">#E82CEF</color>
+    <color name="secondary_color_200">#F07DF3</color>
+    <color name="secondary_color_100">#F6B4F7</color>
+    <color name="secondary_color_50">#FDE1FC</color>
+
+    <color name="light_error">#B00020</color>
+
+    <!-- Dark theme (Use paler theme colors)-->
+    <color name="dark_grey">#121212</color>
+    <color name="light_grey">#1E1D1D</color>
+    <color name="lighter_grey">#322F2F</color>
+    <color name="dark_error">#CF6679</color>
+
+    <!-- General colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="pale_white">#F7F4F4</color>
 </resources>

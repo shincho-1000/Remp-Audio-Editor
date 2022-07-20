@@ -1,3 +1,24 @@
 <resources>
+    <!-- Basic strings -->
     <string name="app_name">Remp Audio Editor</string>
+    <string name="app_name_short">Remp</string>
+    <string name="settings">Settings</string>
+
+    <!-- Action strings -->
+    <string name="new_project">New Project</string>
+    <string name="button_confirm">OK</string>
+    <string name="button_cancel">Cancel</string>
+
+    <!-- Sound properties -->
+
+    <!-- Images and buttons descriptions-->
+    <string name="textlogo_desc">Remp Audio Editor</string>
+    <string name="newproject_desc">New Project</string>
+    <string name="settings_desc">Settings</string>
+
+    <!-- Settings strings -->
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_theme_default">System Default</string>
 </resources>
