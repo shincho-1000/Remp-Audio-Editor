@@ -31,5 +31,4 @@
         android:gravity="top|start"
         tools:text="Light"
         android:textSize="14sp"/>
-
 </LinearLayout>

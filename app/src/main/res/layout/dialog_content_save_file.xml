@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="?attr/dialogPreferredPadding">
+    <EditText
+        android:id="@+id/file_name_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/file_name"
+        android:inputType="textUri"
+        android:importantForAutofill="no"
+        android:background="@null"/>
+</LinearLayout>

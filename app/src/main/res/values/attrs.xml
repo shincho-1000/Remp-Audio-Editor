@@ -1,5 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Theme -->
     <attr name="headerColor" format="reference" />
     <attr name="settingsItemColor" format="reference" />
+    <attr name="splashBackColor" format="reference" />
+    <attr name="fftVisualizerBarColor" format="reference" />
+    <attr name="recorderVisualizerBarColor" format="reference" />
+    <attr name="imageIconColor" format="reference" />
+
+    <!-- Custom components -->
+    <declare-styleable name="RecorderVisualizerScroller">
+        <attr name="recorderViewBarColor" format="color"/>
+    </declare-styleable>
+
+    <declare-styleable name="FftAudioVisualizer">
+        <attr name="fftViewBarColor" format="color"/>
+        <attr name="centralImage" format="reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="WaveformSeekbar">
+        <attr name="waveBackground" format="reference"/>
+        <attr name="waveBarColor" format="color"/>
+        <attr name="pinColor" format="color"/>
+        <attr name="durationView" format="reference"/>
+    </declare-styleable>
 </resources>

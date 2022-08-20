@@ -3,6 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.rempaudioeditor">
 
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -15,7 +19,7 @@
         tools:targetApi="31">
 
         <activity
-            android:name=".SplashScreenActivity"
+            android:name="com.project.rempaudioeditor.activities.SplashScreenActivity"
             android:exported="true"
             android:theme="@style/Theme.SplashTheme">
             <intent-filter>
@@ -25,7 +29,7 @@
         </activity>
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.project.rempaudioeditor.activities.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,11 +37,27 @@
         </activity>
 
         <activity
-            android:name=".SettingsActivity"
-            android:parentActivityName=".MainActivity">
+            android:name="com.project.rempaudioeditor.activities.SettingsActivity"
+            android:parentActivityName="com.project.rempaudioeditor.activities.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value="com.project.rempaudioeditor.activities.MainActivity" />
+        </activity>
+
+        <activity
+            android:name="com.project.rempaudioeditor.activities.RecorderActivity"
+            android:parentActivityName="com.project.rempaudioeditor.activities.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.project.rempaudioeditor.activities.MainActivity" />
+        </activity>
+
+        <activity
+            android:name="com.project.rempaudioeditor.activities.EditorActivity"
+            android:parentActivityName="com.project.rempaudioeditor.activities.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.project.rempaudioeditor.activities.MainActivity" />
         </activity>
 
     </application>

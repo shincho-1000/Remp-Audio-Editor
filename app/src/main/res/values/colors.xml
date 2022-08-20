@@ -31,6 +31,10 @@
     <color name="lighter_grey">#322F2F</color>
     <color name="dark_error">#CF6679</color>
 
+    <!-- Icon button colors -->
+    <color name="icon_white">#ECECEC</color>
+    <color name="icon_black">#0E0E0E</color>
+
     <!-- General colors -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
