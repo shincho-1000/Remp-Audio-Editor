@@ -1,16 +1,15 @@
-package com.project.rempaudioeditor.values;
+package com.project.rempaudioeditor.constants;
 
 import android.content.Context;
 import android.os.Environment;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.project.rempaudioeditor.Settings;
+import com.project.rempaudioeditor.AppSettings;
 
 import java.io.File;
 
-public class AppConstants {
+public class AppData {
     private static final String APP_VERSION = "0.0";
     private static final String AUDIO_RECORDING_FILE_NAME = "audioRecord.3gp";
     private static final String APP_EXTERNAL_STORAGE_FOLDER_NAME = "RempAudioEditor";
@@ -43,7 +42,7 @@ public class AppConstants {
     }
 
     public static String getCurrentAudioStorageDir() {
-        String currentAudioStorageDirectory = Settings.getInstance().getCurrentAudioStorageDir();
+        String currentAudioStorageDirectory = AppSettings.getInstance().getCurrentAudioStorageDir();
         if (!((currentAudioStorageDirectory == null) || (currentAudioStorageDirectory.isEmpty())))
             return currentAudioStorageDirectory;
         else

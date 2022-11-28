@@ -1,9 +1,11 @@
-package com.project.rempaudioeditor.converters;
+package com.project.rempaudioeditor.utils;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 public class UnitConverter {
-    public static double convertDpToPx(Context context, double dp){
+    public static double convertDpToPx(@NonNull Context context, double dp){
         final float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dp * scale);
     }
@@ -35,7 +37,7 @@ public class UnitConverter {
         return formattedDuration;
     }
 
-    public static long formattedTimeToMilisec(String time_str){
+    public static long formattedTimeToMilisec(@NonNull String time_str){
         String[] time_splits = time_str.trim().split(":");
 
         long hr = 0;

@@ -5,16 +5,22 @@
     android:layout_height="match_parent"
     android:padding="?attr/dialogPreferredPadding">
 
-    <EditText
-        android:id="@+id/folder_path_text"
+    <HorizontalScrollView
+        android:id="@+id/folder_path_scroll"
         android:layout_width="250dp"
         android:layout_height="30dp"
-        android:background="@null"
-        android:hint="@string/folder_path"
-        android:importantForAutofill="no"
-        android:inputType="textUri"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:scrollbarThumbHorizontal="@null"
+        android:overScrollMode="never" >
+
+        <TextView
+            android:id="@+id/folder_path_text"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:hint="@string/folder_path"
+            android:textSize="20sp" />
+    </HorizontalScrollView>
 
     <ImageButton
         android:id="@+id/folder_path_select_btn"
@@ -24,7 +30,5 @@
         android:contentDescription="@string/select_desc"
         android:src="@drawable/icon_folder"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1"
-        app:layout_constraintStart_toEndOf="@+id/folder_path_text"
         app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

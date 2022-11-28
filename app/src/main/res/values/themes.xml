@@ -10,34 +10,44 @@
         <item name="colorSecondaryVariant">@color/secondary_color_700</item>
         <item name="colorOnSecondary">@color/black</item>
 
+        <item name="errorColor">@color/light_error</item>
+
         <!-- Basic ui elements -->
         <item name="headerColor">@color/white</item>
+        <item name="editorTrayColor">@color/white</item>
+        <item name="visualizerBackgroundColor">@color/pale_white</item>
         <item name="settingsItemColor">@color/white</item>
         <item name="android:textColor">@color/black</item>
         <item name="textFillColor">@color/black</item>
         <item name="dividerColor">@color/dark_grey</item>
         <item name="imageIconColor">@color/icon_black</item>
+        <item name="controlColor">@color/pale_white</item>
 
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>
         <item name="android:fitsSystemWindows">true</item>
 
         <!-- Visualizer Colors -->
-        <item name="fftVisualizerBarColor">?attr/colorPrimary</item>
-        <item name="recorderVisualizerBarColor">?attr/colorPrimary</item>
+        <item name="recorderVisualizerBarColor">?attr/colorSecondary</item>
     </style>
 
     <style name="Theme.SplashTheme" parent="Theme.RempAudioEditor">
         <item name="android:windowBackground">@drawable/background_splash_screen</item>
-        <item name="splashBackColor">@color/pale_white</item>
     </style>
 
     <style name="Theme.AlertDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
-        <item name="buttonBarButtonStyle">@style/DialogButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/DialogPositiveButtonStyle</item>
+        <item name="buttonBarNegativeButtonStyle">@style/DialogNegativeButtonStyle</item>
         <item name="dialogCornerRadius">@dimen/popupCornerRadius</item>
     </style>
 
-    <style name="DialogButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+    <style name="DialogPositiveButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
         <item name="android:textColor">?attr/textFillColor</item>
+        <item name="android:background">?selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="DialogNegativeButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">?attr/errorColor</item>
+        <item name="android:background">?selectableItemBackgroundBorderless</item>
     </style>
 </resources>

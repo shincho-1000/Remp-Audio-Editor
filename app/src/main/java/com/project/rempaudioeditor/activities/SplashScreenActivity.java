@@ -1,24 +1,22 @@
 package com.project.rempaudioeditor.activities;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatDelegate;
 
-import com.project.rempaudioeditor.Settings;
+import com.project.rempaudioeditor.AppMethods;
+import com.project.rempaudioeditor.AppSettings;
 import com.project.rempaudioeditor.database.SettingsJsonManager;
 
-public class SplashScreenActivity extends Activity {
+public class SplashScreenActivity extends DefaultActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Creating the activity and finishing it after main activity loads
         super.onCreate(savedInstanceState);
 
         // Load settings
-        SettingsJsonManager.createSettingsInfo(getApplicationContext());
+        SettingsJsonManager.loadSettings(getApplicationContext());
 
-        switch (Settings.getInstance().getTheme()) {
+        switch (AppSettings.getInstance().getThemeId()) {
             case LIGHT:
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                 break;
@@ -30,7 +28,7 @@ public class SplashScreenActivity extends Activity {
                 break;
         }
 
-        startActivity(new Intent(SplashScreenActivity.this, MainActivity.class));
-        finish();
+        AppMethods.openActivity(this, MainActivity.class);
+        AppMethods.finishActivity(this);
     }
 }

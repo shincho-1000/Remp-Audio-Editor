@@ -2,11 +2,14 @@
 <resources>
     <!-- Theme -->
     <attr name="headerColor" format="reference" />
+    <attr name="editorTrayColor" format="reference" />
+    <attr name="visualizerBackgroundColor" format="reference" />
     <attr name="settingsItemColor" format="reference" />
-    <attr name="splashBackColor" format="reference" />
     <attr name="fftVisualizerBarColor" format="reference" />
     <attr name="recorderVisualizerBarColor" format="reference" />
     <attr name="imageIconColor" format="reference" />
+    <attr name="errorColor" format="reference" />
+    <attr name="controlColor" format="reference" />
 
     <!-- Custom components -->
     <declare-styleable name="RecorderVisualizerScroller">

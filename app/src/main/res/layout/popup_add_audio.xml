@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <androidx.cardview.widget.CardView
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        style="@style/PopupCardStyle">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/header_add_audio"
+                style="@style/PopupHeaderTextStyle"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text="@string/add_audio"/>
+
+            <View
+                android:id="@+id/divider_add_audio"
+                style="@style/DividerStyle"
+                android:layout_marginBottom="8dp"/>
+
+            <Button
+                android:id="@+id/add_audio_from_existing_file_btn"
+                style="@style/PopupButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="49dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/add_audio_from_existing_file" />
+
+            <Button
+                android:id="@+id/add_audio_from_video_btn"
+                style="@style/PopupButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="49dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/add_audio_from_video" />
+
+            <Button
+                android:id="@+id/add_audio_recording_btn"
+                style="@style/PopupButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/add_audio_recording" />
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>

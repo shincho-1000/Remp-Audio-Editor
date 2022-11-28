@@ -1,4 +1,4 @@
-package com.project.rempaudioeditor.arrayadapters;
+package com.project.rempaudioeditor.recycleradapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,17 +10,19 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.rempaudioeditor.R;
-import com.project.rempaudioeditor.infos.SettingsItemView;
+import com.project.rempaudioeditor.infos.SettingsItemInfo;
 
 import java.util.ArrayList;
 
 public class SettingsItemsAdapter extends RecyclerView.Adapter<SettingsItemsAdapter.ViewHolder> {
 
     private final Context context; // Brings resources to your code
-    private final ArrayList<SettingsItemView> itemsList;
+    private final ArrayList<SettingsItemInfo> itemsList;
     private final SettingsItemClickListener onClickListener;
 
-    public SettingsItemsAdapter(Context context, ArrayList<SettingsItemView> itemsList, SettingsItemClickListener onClickListener){
+    public SettingsItemsAdapter(Context context,
+                                ArrayList<SettingsItemInfo> itemsList,
+                                SettingsItemClickListener onClickListener){
         this.context = context;
         this.itemsList = itemsList;
         this.onClickListener = onClickListener;
@@ -28,14 +30,15 @@ public class SettingsItemsAdapter extends RecyclerView.Adapter<SettingsItemsAdap
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) { // Takes the view to be shown multiple times
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                                         int viewType) { // Takes the view to be shown multiple times
         View inflatedView = LayoutInflater.from(context).inflate(R.layout.settings_list_item, parent, false);
         return new ViewHolder(inflatedView, onClickListener);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) { // Handles the view taken in onCreateViewHolder
-        SettingsItemView item = itemsList.get(position);
+        SettingsItemInfo item = itemsList.get(position);
 
         String main_str = item.getMainText();
         String desc_str = item.getDescText();
@@ -44,7 +47,7 @@ public class SettingsItemsAdapter extends RecyclerView.Adapter<SettingsItemsAdap
     }
 
     @Override
-    public int getItemCount() { // Total no. of items
+    public int getItemCount() {
         return itemsList.size();
     }
 
@@ -53,7 +56,8 @@ public class SettingsItemsAdapter extends RecyclerView.Adapter<SettingsItemsAdap
         TextView textView_desc;
         SettingsItemClickListener onClickListener;
 
-        public ViewHolder(@NonNull View itemView, SettingsItemClickListener onClickListener) {
+        public ViewHolder(@NonNull View itemView,
+                          SettingsItemClickListener onClickListener) {
             super(itemView);
 
             textView_main = itemView.findViewById(R.id.settings_list_text_main);

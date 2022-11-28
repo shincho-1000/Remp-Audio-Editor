@@ -5,16 +5,22 @@
     <string name="settings">Settings</string>
     <string name="recorder">Recorder</string>
     <string name="editor">Editor</string>
+    <string name="slash">/</string>
 
     <!-- Action strings -->
     <string name="new_project">New Project</string>
+    <string name="add_audio">Add Audio</string>
     <string name="new_project_from_existing_file">Import Existing Audio</string>
     <string name="new_project_from_video">Import From Video</string>
     <string name="new_project_recording">Record New Audio</string>
+    <string name="add_audio_from_existing_file">Import Existing Audio</string>
+    <string name="add_audio_from_video">Import From Video</string>
+    <string name="add_audio_recording">Record New Audio</string>
     <string name="file_name">Filename</string>
     <string name="folder_path">Folder path</string>
     <string name="button_confirm">OK</string>
     <string name="button_cancel">Cancel</string>
+    <string name="loading">Loading</string>
 
     <!-- Images and buttons descriptions-->
     <string name="textlogo_desc">Remp Audio Editor</string>
@@ -23,9 +29,21 @@
     <string name="back_desc">Back</string>
     <string name="select_desc">Select</string>
 
-    <!-- Settings strings -->
+    <!-- AppSettings strings -->
     <string name="settings_theme">Theme</string>
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_theme_default">System Default</string>
+
+    <!-- Popup and dialog strings -->
+    <string name="dialog_header_settings_change_default_audio_path">Change audio storage directory</string>
+    <string name="dialog_header_recorder_store_rec">Do you want to store the following recording?</string>
+    <string name="dialog_header_video_extraction_rec">Do you want to extract audio from the following video?</string>
+    <string name="dialog_header_permission_required">Permission Required</string>
+    <string name="dialog_desc_permission_record_audio">Please permit Remp to record audio</string>
+    <string name="dialog_desc_permission_storage">Please permit Remp to manage storage</string>
+
+    <!-- Editor strings -->
+    <string name="duration_hint">HH:MM:SS</string>
+    <string name="total_duration_default">00:00:00</string>
 </resources>

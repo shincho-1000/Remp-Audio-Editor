@@ -36,13 +36,16 @@
             android:layout_centerHorizontal="true"
             android:gravity="center"
             android:text="@string/settings"
-            android:textSize="23sp" />
+            android:textSize="@dimen/headerTextSize" />
     </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/settings_list"
-        android:layout_width="373dp"
-        android:layout_height="659dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
         android:overScrollMode="never"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

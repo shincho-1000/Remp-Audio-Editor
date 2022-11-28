@@ -1,28 +1,26 @@
 package com.project.rempaudioeditor;
 
-import android.util.Log;
-
 import com.project.rempaudioeditor.enums.ThemeId;
 
-public class Settings {
-    private static Settings single_instance = null;
-    private ThemeId theme;
+public class AppSettings {
+    private static AppSettings single_instance = null;
+    private ThemeId appThemeId;
     private String current_audio_storage_dir;
 
-    private Settings() {
+    private AppSettings() {
 
     }
 
-    public static Settings getInstance() {
+    public static AppSettings getInstance() {
         if (single_instance == null) {
-            single_instance = new Settings();
+            single_instance = new AppSettings();
         }
         return single_instance;
     }
 
     // Getters
-    public ThemeId getTheme() {
-        return theme;
+    public ThemeId getThemeId() {
+        return appThemeId;
     }
 
     public String getCurrentAudioStorageDir() {
@@ -30,8 +28,8 @@ public class Settings {
     }
 
     // Setters
-    public void setTheme(ThemeId theme) {
-        this.theme = theme;
+    public void setTheme(ThemeId appThemeId) {
+        this.appThemeId = appThemeId;
     }
 
     public void setCurrentAudioStorageDir(String current_audio_storage_dir) {

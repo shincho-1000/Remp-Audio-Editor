@@ -2,6 +2,8 @@ package com.project.rempaudioeditor.database;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -11,7 +13,9 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 public class FileManager {
-    public static void writeStringFileToAppDirectory(Context context, String file_name, String content) {
+    public static void writeStringFileToAppDirectory(@NonNull Context context,
+                                                     @NonNull String file_name,
+                                                     @NonNull String content) {
         try (FileOutputStream fos = context.openFileOutput(file_name, Context.MODE_PRIVATE)) {
             fos.write(content.getBytes());
         } catch (IOException e) {
@@ -19,7 +23,8 @@ public class FileManager {
         }
     }
 
-    public static String readStringFileFromAppDirectory(Context context, String file_name) {
+    public static String readStringFileFromAppDirectory(@NonNull Context context,
+                                                        @NonNull String file_name) {
         FileInputStream fileInputStream = null;
         try {
             fileInputStream = context.openFileInput(file_name);
@@ -41,7 +46,8 @@ public class FileManager {
         return stringBuilder.toString();
     }
 
-    public static void removeStringFileFromAppDirectory(Context context, String file_name) {
+    public static void removeStringFileFromAppDirectory(@NonNull Context context,
+                                                        @NonNull String file_name) {
         context.deleteFile(file_name);
     }
 }

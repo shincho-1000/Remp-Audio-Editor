@@ -5,14 +5,15 @@ import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.media.audiofx.Visualizer;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.project.rempaudioeditor.converters.AudioConverters;
+import com.project.rempaudioeditor.utils.FileConverter;
 import com.project.rempaudioeditor.infos.AudioInfo;
-import com.project.rempaudioeditor.views.FftAudioVisualizer;
-import com.project.rempaudioeditor.views.WaveformSeekbar;
+import com.project.rempaudioeditor.customviews.FftAudioVisualizer;
+import com.project.rempaudioeditor.customviews.WaveformSeekbar;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class AudioPlayerData {
 
     private boolean released = true;
 
-    private ArrayList<AudioInfo> audio_tracks = new ArrayList<>();
+    private final ArrayList<AudioInfo> audio_tracks = new ArrayList<>();
     private int current_audio_track_index = 0;
     private int current_track_start = 0;
     private int current_track_end = 0;
@@ -42,11 +43,17 @@ public class AudioPlayerData {
         return single_instance;
     }
 
-    public void initializePlayer(@NonNull ArrayList<AudioInfo> audio_tracks, @NonNull FftAudioVisualizer fftAudioVisualizerView, @NonNull WaveformSeekbar seekbar, @Nullable EditText duration_EditView) {
-        this.audio_tracks = audio_tracks;
+    public void initializePlayer(@NonNull FftAudioVisualizer fftAudioVisualizerView,
+                                 @NonNull WaveformSeekbar seekbar,
+                                 @Nullable EditText current_duration_editView,
+                                 @Nullable TextView total_duration_editView) {
         this.fftAudioVisualizerView = fftAudioVisualizerView;
 
-        seekbar.connectMediaPlayer(AudioPlayerData.getInstance(), audio_tracks, duration_EditView);
+        seekbar.connectMediaPlayer(current_duration_editView, total_duration_editView);
+    }
+
+    public void addTrack(AudioInfo newTrack) {
+        audio_tracks.add(newTrack);
     }
 
     public void setCurrentAudioTrackIndex(int current_audio_track_index) {
@@ -79,7 +86,7 @@ public class AudioPlayerData {
 
             @Override
             public void onFftDataCapture(Visualizer visualizer, byte[] fft, int samplingRate) {
-                fftAudioVisualizerView.setBars(AudioConverters.makeFftFrom(fft));
+                fftAudioVisualizerView.setBars(FileConverter.formatFft(fft));
             }
         }, Visualizer.getMaxCaptureRate(), false, true);
 
@@ -121,12 +128,12 @@ public class AudioPlayerData {
                 if (current_audio_track_index < audio_tracks.size()) {
                     startPlayer(app_context);
                 } else {
-                    stopPlayer();
+                    endPlayer();
                     current_audio_track_index = 0;
                 }
             });
         } else {
-            stopPlayer();
+            endPlayer();
             startPlayer(app_context);
         }
     }
@@ -141,11 +148,12 @@ public class AudioPlayerData {
             mPlayer.start();
     }
 
-    public void stopPlayer() {
+    public void endPlayer() {
         if (!released) {
             releaseVisualizer();
             releasePlayer();
             released = true;
+            audio_tracks.clear();
         }
     }
 
@@ -191,5 +199,9 @@ public class AudioPlayerData {
 
     public int getCurrentAudioTrackEnd() {
         return current_track_end;
+    }
+
+    public ArrayList<AudioInfo> getTrackList() {
+        return audio_tracks;
     }
 }

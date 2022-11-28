@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -24,8 +25,8 @@
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
             android:background="?selectableItemBackgroundBorderless"
-            android:src="@drawable/icon_arrow_back"
-            android:contentDescription="@string/back_desc" />
+            android:contentDescription="@string/back_desc"
+            android:src="@drawable/icon_arrow_back" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -37,7 +38,161 @@
             android:layout_centerHorizontal="true"
             android:gravity="center"
             android:text="@string/editor"
-            android:textSize="23sp" />
+            android:textSize="@dimen/headerTextSize" />
+
+        <ImageButton
+            android:id="@+id/export_btn"
+            android:layout_width="39dp"
+            android:layout_height="39dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/icon_export" />
+
+        <ImageButton
+            android:id="@+id/add_audio_btn"
+            android:layout_width="39dp"
+            android:layout_height="39dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_toStartOf="@+id/export_btn"
+            android:background="?selectableItemBackgroundBorderless"
+            android:src="@drawable/icon_plus_sign" />
     </RelativeLayout>
+
+    <com.project.rempaudioeditor.customviews.FftAudioVisualizer
+        android:id="@+id/editor_fft_visualizer"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        app:fftViewBarColor="?attr/colorSecondary"
+        android:layout_marginTop="42dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editor_header" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/play_audio_btn"
+        android:layout_marginTop="8dp">
+
+        <EditText
+            android:id="@+id/durationText"
+            android:layout_width="100dp"
+            android:layout_height="46dp"
+            android:background="@null"
+            android:ems="10"
+            android:hint="@string/duration_hint"
+            android:imeOptions="actionDone"
+            android:importantForAutofill="no"
+            android:inputType="time"
+            android:textAlignment="center"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/slash"
+            android:layout_width="35dp"
+            android:layout_height="46dp"
+            android:ems="2"
+            android:gravity="center"
+            android:importantForAutofill="no"
+            android:text="@string/slash"
+            android:textAlignment="center"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/totalDurationText"
+            android:layout_width="100dp"
+            android:layout_height="46dp"
+            android:ems="10"
+            android:gravity="center"
+            android:importantForAutofill="no"
+            android:text="@string/total_duration_default"
+            android:textAlignment="center"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+    <com.project.rempaudioeditor.customviews.WaveformSeekbar
+        android:id="@+id/editor_waveform_seeker"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:fillViewport="true"
+        app:durationView="@id/durationText"
+        app:layout_constraintBottom_toTopOf="@+id/editor_tray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        app:layout_constraintVertical_bias="0.315"
+        app:pinColor="@color/light_error"
+        app:waveBackground="@drawable/background_editor_seeker"
+        app:waveBarColor="?attr/colorOnPrimary" />
+
+    <ImageView
+        android:id="@+id/play_audio_btn"
+        style="@style/ControlButtonStyle"
+        android:layout_marginTop="8dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:contentDescription="@string/back_desc"
+        android:src="@drawable/icon_play"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editor_fft_visualizer" />
+
+    <ImageView
+        android:id="@+id/next_audio_btn"
+        style="@style/ControlButtonStyle"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:contentDescription="@string/back_desc"
+        app:layout_constraintBottom_toBottomOf="@id/play_audio_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/play_audio_btn"
+        app:layout_constraintTop_toTopOf="@id/play_audio_btn"
+        app:layout_constraintHorizontal_bias="0.3"/>
+
+    <ImageView
+        android:id="@+id/previous_audio_btn"
+        style="@style/ControlButtonStyle"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:contentDescription="@string/back_desc"
+        app:layout_constraintBottom_toBottomOf="@id/play_audio_btn"
+        app:layout_constraintEnd_toStartOf="@id/play_audio_btn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/play_audio_btn"
+        app:layout_constraintHorizontal_bias="0.7"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:background="@drawable/background_editor_tray"
+        android:id="@+id/editor_tray"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_margin="10dp"
+        android:overScrollMode="never"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        android:elevation="10dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

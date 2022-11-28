@@ -6,25 +6,32 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
-import com.project.rempaudioeditor.converters.AudioConverters;
-import com.project.rempaudioeditor.views.WaveForm;
+import com.project.rempaudioeditor.utils.FileConverter;
+import com.project.rempaudioeditor.customviews.WaveForm;
 
 
 public class AudioInfo {
-    private final WaveForm waveForm;
+    private OnWaveFormCreatedListener waveform_created_listener;
+    private WaveForm waveForm;
     private final Uri uriFile;
     private final int duration;
 
 
-    public AudioInfo(@NonNull Context context, @NonNull Uri uriFile) {
+    public AudioInfo(@NonNull Context context,
+                     @NonNull Uri uriFile) {
         this.uriFile = uriFile;
-        waveForm = AudioConverters.createWaveForm(context, uriFile);
 
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         mmr.setDataSource(context, uriFile);
         String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
         duration = Integer.parseInt(durationStr);
+    }
 
+    public void generateWaveform(@NonNull Context context) {
+        waveForm = FileConverter.createWaveForm(context, uriFile);
+
+        if (waveform_created_listener != null)
+            waveform_created_listener.waveformCreated();
     }
 
     public WaveForm getWaveForm() {
@@ -37,5 +44,14 @@ public class AudioInfo {
 
     public int getUriDuration() {
         return duration;
+    }
+
+
+    public void setWaveFormCreatedListener(OnWaveFormCreatedListener event_listener) {
+        waveform_created_listener = event_listener;
+    }
+
+    public interface OnWaveFormCreatedListener {
+        void waveformCreated();
     }
 }

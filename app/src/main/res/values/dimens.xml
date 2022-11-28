@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="popupCornerRadius">10dp</dimen>
+    <dimen name="headerTextSize">20sp</dimen>
+    <dimen name="audioControlSize">50dp</dimen>
 </resources>

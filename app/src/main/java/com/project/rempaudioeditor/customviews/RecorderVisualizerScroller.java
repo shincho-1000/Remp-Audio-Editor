@@ -1,11 +1,12 @@
-package com.project.rempaudioeditor.views;
+package com.project.rempaudioeditor.customviews;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.widget.HorizontalScrollView;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
@@ -60,7 +61,9 @@ public class RecorderVisualizerScroller extends HorizontalScrollView {
         recorderAudioVisualizer.clearAmps();
     }
 
-    public RecorderAudioVisualizer getVisualizer() {
-        return recorderAudioVisualizer;
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        return false;
     }
 }

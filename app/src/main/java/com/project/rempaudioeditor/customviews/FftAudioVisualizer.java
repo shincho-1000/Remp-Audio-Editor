@@ -1,4 +1,4 @@
-package com.project.rempaudioeditor.views;
+package com.project.rempaudioeditor.customviews;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
 import com.example.rempaudioeditor.R;
-import com.project.rempaudioeditor.converters.UnitConverter;
+import com.project.rempaudioeditor.utils.UnitConverter;
 
 import java.util.ArrayList;
 
@@ -79,10 +79,12 @@ public class FftAudioVisualizer extends View {
                 canvas.rotate(rotationInDeg, canvas_width / 2f, canvas_height / 2f);
             }
 
-            int left = (canvas_width - circle_radius) / 2;
-            int top = (canvas_height - circle_radius) / 2;
-            center_img.setBounds(left, top, left + circle_radius, top + circle_radius);
-            center_img.draw(canvas);
+            if (center_img != null) {
+                int left = (canvas_width - circle_radius) / 2;
+                int top = (canvas_height - circle_radius) / 2;
+                center_img.setBounds(left, top, left + circle_radius, top + circle_radius);
+                center_img.draw(canvas);
+            }
         }
     }
 

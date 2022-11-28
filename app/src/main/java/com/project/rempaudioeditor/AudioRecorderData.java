@@ -6,20 +6,21 @@ import android.os.Handler;
 
 import androidx.annotation.NonNull;
 
-import com.project.rempaudioeditor.values.AppConstants;
-import com.project.rempaudioeditor.views.RecorderVisualizerScroller;
+import com.project.rempaudioeditor.constants.AppData;
+import com.project.rempaudioeditor.customviews.RecorderVisualizerScroller;
 
 import java.io.IOException;
 
 public class AudioRecorderData {
     private static AudioRecorderData single_instance = null;
 
-    private MediaRecorder mediaRecorder;
+    private MediaRecorder media_recorder;
+    private RecorderVisualizerScroller recorder_visualizer_wrapper;
+
     private boolean recording;
-    private RecorderVisualizerScroller audioVisualizerScroller;
 
     private final Runnable runnable = this::updateVisualizer;
-    private final Handler audioRecHandler = new Handler();
+    private final Handler audio_rec_handler = new Handler();
 
     private AudioRecorderData() {
 
@@ -33,29 +34,29 @@ public class AudioRecorderData {
     }
 
     public MediaRecorder getMediaRecorder() {
-        return mediaRecorder;
+        return media_recorder;
     }
 
     public boolean ifRecording() {
         return recording;
     }
 
-    public void startRec(@NonNull Context context, @NonNull RecorderVisualizerScroller audioVisualizerScroller) {
-        this.audioVisualizerScroller = audioVisualizerScroller;
+    public void startRec(@NonNull Context context,
+                         @NonNull RecorderVisualizerScroller audioVisualizerScroller) {
+        this.recorder_visualizer_wrapper = audioVisualizerScroller;
 
-        if (mediaRecorder == null) {
-
-            mediaRecorder = new MediaRecorder();
-            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-            mediaRecorder.setOutputFile(AppConstants.getAppAudioRecordingFilePath(context));
+        if (media_recorder == null) {
+            media_recorder = new MediaRecorder();
+            media_recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            media_recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+            media_recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+            media_recorder.setOutputFile(AppData.getAppAudioRecordingFilePath(context));
             try {
-                mediaRecorder.prepare();
+                media_recorder.prepare();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            mediaRecorder.start();
+            media_recorder.start();
 
             recording = true;
 
@@ -65,24 +66,24 @@ public class AudioRecorderData {
     }
 
     public void pauseRec() {
-        mediaRecorder.pause();
+        media_recorder.pause();
         recording = false;
     }
 
     public void resumeRec() {
-        mediaRecorder.resume();
+        media_recorder.resume();
         recording = true;
+
+        updateVisualizer();
     }
 
     public void stopRec() {
-        mediaRecorder.stop();
-        mediaRecorder.release();
-        mediaRecorder = null;
-        recording = false;
-    }
-
-    public void playRec() {
-
+        if (media_recorder != null) {
+            media_recorder.stop();
+            media_recorder.release();
+            media_recorder = null;
+            recording = false;
+        }
     }
 
     public void deleteRec() {
@@ -90,14 +91,14 @@ public class AudioRecorderData {
     }
 
     private void updateVisualizer() {
-        if ((mediaRecorder != null) && (recording)) {
-            int amp = mediaRecorder.getMaxAmplitude();
-            audioVisualizerScroller.addAmp(amp);
+        if ((media_recorder != null) && (recording)) {
+            int amp = media_recorder.getMaxAmplitude();
+            recorder_visualizer_wrapper.addAmp(amp);
+            audio_rec_handler.postDelayed(runnable, 50);
         }
-        audioRecHandler.postDelayed(runnable, 50);
     }
 
     private void clearVisualizer() {
-        audioVisualizerScroller.clearAmps();
+        recorder_visualizer_wrapper.clearAmps();
     }
 }

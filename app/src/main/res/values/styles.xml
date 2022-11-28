@@ -32,8 +32,12 @@
         <item name="android:background">@drawable/background_header</item>
         <item name="android:elevation">16dp</item>
         <item name="android:outlineProvider">background</item>
-        <item name="android:layout_height">59dp</item>
-        <item name="android:layout_width">403dp</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginStart">10dp</item>
+        <item name="android:layout_marginEnd">10dp</item>
+        <item name="android:layout_marginTop">10dp</item>
     </style>
 
     <!-- Divider -->
@@ -41,5 +45,14 @@
         <item name="android:background">?attr/dividerColor</item>
         <item name="android:layout_height">1dp</item>
         <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <!-- Controls -->
+    <style name="ControlButtonStyle">
+        <item name="android:background">@drawable/background_controls</item>
+        <item name="android:layout_height">@dimen/audioControlSize</item>
+        <item name="android:layout_width">@dimen/audioControlSize</item>
+        <item name="android:clickable">true</item>
+        <item name="android:padding">10dp</item>
     </style>
 </resources>
