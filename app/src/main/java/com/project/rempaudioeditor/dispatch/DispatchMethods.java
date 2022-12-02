@@ -22,11 +22,12 @@ import com.project.rempaudioeditor.utils.AttrDataRetriever;
 public class DispatchMethods {
 
     public static PopupWindow sendPopup(@NonNull View popup_view,
-                                        @NonNull Transition transition) {
+                                        @NonNull Transition transition,
+                                        @NonNull Boolean focusable) {
         PopupWindow popupWindow = new PopupWindow(popup_view,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
-                true);
+                focusable);
         popupWindow.setEnterTransition(transition);
         popupWindow.setExitTransition(transition);
         popupWindow.showAtLocation(popup_view, Gravity.CENTER, 0, 0);

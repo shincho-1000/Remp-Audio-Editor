@@ -31,10 +31,6 @@
         <item name="recorderVisualizerBarColor">?attr/colorSecondary</item>
     </style>
 
-    <style name="Theme.SplashTheme" parent="Theme.RempAudioEditor">
-        <item name="android:windowBackground">@drawable/background_splash_screen</item>
-    </style>
-
     <style name="Theme.AlertDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
         <item name="buttonBarPositiveButtonStyle">@style/DialogPositiveButtonStyle</item>
         <item name="buttonBarNegativeButtonStyle">@style/DialogNegativeButtonStyle</item>
@@ -49,5 +45,12 @@
     <style name="DialogNegativeButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
         <item name="android:textColor">?attr/errorColor</item>
         <item name="android:background">?selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/app_logo</item>
+        <item name="windowSplashScreenAnimationDuration">200</item>
+        <item name="postSplashScreenTheme">@style/Theme.RempAudioEditor</item>
     </style>
 </resources>

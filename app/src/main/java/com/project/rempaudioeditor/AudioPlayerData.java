@@ -5,6 +5,7 @@ import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.media.audiofx.Visualizer;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -31,6 +32,7 @@ public class AudioPlayerData {
     private int current_audio_track_index = 0;
     private int current_track_start = 0;
     private int current_track_end = 0;
+    private OnPlayerInitializedListener player_initialized_listener;
 
     private AudioPlayerData() {
 
@@ -43,13 +45,20 @@ public class AudioPlayerData {
         return single_instance;
     }
 
-    public void initializePlayer(@NonNull FftAudioVisualizer fftAudioVisualizerView,
+    public void initializePlayer(@NonNull Context context,
+                                 @NonNull FftAudioVisualizer fft_audio_visualizer_view,
                                  @NonNull WaveformSeekbar seekbar,
-                                 @Nullable EditText current_duration_editView,
-                                 @Nullable TextView total_duration_editView) {
-        this.fftAudioVisualizerView = fftAudioVisualizerView;
+                                 @Nullable EditText current_duration_edit_view,
+                                 @Nullable TextView total_duration_edit_view) {
+        this.fftAudioVisualizerView = fft_audio_visualizer_view;
 
-        seekbar.connectMediaPlayer(current_duration_editView, total_duration_editView);
+        seekbar.connectMediaPlayer(context, current_duration_edit_view, total_duration_edit_view);
+
+        seekbar.setWaveFormCreatedListener(() -> {
+            if (player_initialized_listener != null) {
+                player_initialized_listener.playerInitialized();
+            }
+        });
     }
 
     public void addTrack(AudioInfo newTrack) {
@@ -203,5 +212,13 @@ public class AudioPlayerData {
 
     public ArrayList<AudioInfo> getTrackList() {
         return audio_tracks;
+    }
+
+    public void setPlayerInitializedListener(OnPlayerInitializedListener event_listener) {
+        player_initialized_listener = event_listener;
+    }
+
+    public interface OnPlayerInitializedListener {
+        void playerInitialized();
     }
 }

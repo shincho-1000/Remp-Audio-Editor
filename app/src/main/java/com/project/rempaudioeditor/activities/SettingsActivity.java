@@ -75,7 +75,7 @@ public class SettingsActivity extends DefaultActivity implements SettingsItemsAd
             case THEME:
                 View popup_view = inflater.inflate(R.layout.popup_settings_theme,  null);
 
-                theme_popup = DispatchMethods.sendPopup(popup_view, new Fade());
+                theme_popup = DispatchMethods.sendPopup(popup_view, new Fade(), true);
 
                 RadioGroup theme_radio_group = popup_view.findViewById(R.id.theme_radio_group);
 

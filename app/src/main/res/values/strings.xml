@@ -20,7 +20,8 @@
     <string name="folder_path">Folder path</string>
     <string name="button_confirm">OK</string>
     <string name="button_cancel">Cancel</string>
-    <string name="loading">Loading</string>
+    <string name="loading">Loading…</string>
+    <string name="importing">Importing…</string>
 
     <!-- Images and buttons descriptions-->
     <string name="textlogo_desc">Remp Audio Editor</string>

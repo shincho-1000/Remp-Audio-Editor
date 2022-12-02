@@ -1,6 +1,7 @@
 package com.project.rempaudioeditor.customviews;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -15,12 +16,16 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.rempaudioeditor.R;
 import com.project.rempaudioeditor.AudioPlayerData;
+import com.project.rempaudioeditor.activities.MainActivity;
 import com.project.rempaudioeditor.utils.UnitConverter;
 import com.project.rempaudioeditor.infos.AudioInfo;
 
@@ -39,6 +44,8 @@ public class WaveformSeekbar extends HorizontalScrollView {
     private ArrayList<AudioInfo> audio_tracks;
 
     private int flingPreviousPosition;
+
+    private OnWaveFormCreatedListener waveform_created_listener;
 
     OnSeekHoldListener holdListener;
 
@@ -87,13 +94,36 @@ public class WaveformSeekbar extends HorizontalScrollView {
         setHorizontalScrollBarEnabled(false);
     }
 
-    public void connectMediaPlayer(@Nullable EditText currentPosView, @Nullable TextView totalDurationView) {
+    public void connectMediaPlayer(@NonNull Context context, @Nullable EditText currentPosView, @Nullable TextView totalDurationView) {
         this.audio_player_data = AudioPlayerData.getInstance();
         this.audio_tracks = audio_player_data.getTrackList();
 
-        for (int i = 0; i < audio_tracks.size(); i++) {
-            addWaveform(audio_tracks.get(i));
+        LinearLayout child_layout;
+
+        if (getChildCount() > 0) {
+            child_layout = (LinearLayout) getChildAt(0);
         }
+        else {
+            child_layout = new LinearLayout(getContext());
+            addView(child_layout);
+        }
+
+        Thread conversion = new Thread(() -> {
+            for (int i = 0; i < audio_tracks.size(); i++) {
+                WaveForm waveForm = audio_tracks.get(i).generateWaveform(getContext());
+                ((Activity) context).runOnUiThread(() -> {
+                    child_layout.addView(waveForm);
+                    waveForm.setBarColor(barColor);
+                    waveForm.setBackground(waveform_background);
+                });
+            }
+
+            if (waveform_created_listener != null) {
+                waveform_created_listener.waveformCreated();
+            }
+        });
+
+        conversion.start();
 
         total_duration = audio_player_data.getPlayerTotalDuration();
         if (totalDurationView != null)
@@ -145,8 +175,7 @@ public class WaveformSeekbar extends HorizontalScrollView {
             child_layout = new LinearLayout(getContext());
             addView(child_layout);
         }
-
-        WaveForm waveForm = audioTrack.getWaveForm();
+        WaveForm waveForm = audioTrack.generateWaveform(getContext());
         child_layout.addView(waveForm);
         waveForm.setBarColor(barColor);
         waveForm.setBackground(waveform_background);
@@ -268,5 +297,13 @@ public class WaveformSeekbar extends HorizontalScrollView {
         setScrollBarStyle(SCROLLBARS_OUTSIDE_INSET);
 
         canvas.drawRect(pin, pin_paint);
+    }
+
+    public void setWaveFormCreatedListener(OnWaveFormCreatedListener event_listener) {
+        waveform_created_listener = event_listener;
+    }
+
+    public interface OnWaveFormCreatedListener {
+        void waveformCreated();
     }
 }

@@ -8,11 +8,18 @@ import android.media.MediaFormat;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaMuxer;
 import android.net.Uri;
+import android.os.Handler;
+import android.transition.Fade;
 import android.util.Log;
+import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
+import com.project.rempaudioeditor.AudioPlayerData;
 import com.project.rempaudioeditor.customviews.WaveForm;
+import com.project.rempaudioeditor.dispatch.DispatchMethods;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -50,6 +57,8 @@ public class FileConverter {
         return newFft;
     }
 
+    public static final float BARS_PER_SEC = 10;
+
     public static WaveForm createWaveForm(@NonNull Context context, @NonNull Uri uriFile) {
         WaveForm waveForm = new WaveForm(context);
 
@@ -67,6 +76,7 @@ public class FileConverter {
             MediaCodec mediaCodec = MediaCodec.createDecoderByType(mime);
             mediaCodec.configure(mediaFormat, null, null, 0);
             mediaCodec.start();
+
             MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
             boolean inputDone = false;
             int index = 0;
@@ -105,8 +115,8 @@ public class FileConverter {
                     ShortBuffer pcm16bitBuffer = outputBuffer.asShortBuffer();
                     while (pcm16bitBuffer.hasRemaining())
                     {
-                        short x = pcm16bitBuffer.get();
-                        if (index >= outputFrameRate/10) {
+                        short value = pcm16bitBuffer.get();
+                        if (index >= outputFrameRate/BARS_PER_SEC) {
                             if (sample_count > 0) {
                                 waveValues.add(Math.pow(Math.abs((double) (sum / sample_count)), 0.7));
                             } else {
@@ -117,8 +127,8 @@ public class FileConverter {
 
                             index = 0;
                         }
-                        if (x > 0) {
-                            sum += x;
+                        if (value > 0) {
+                            sum += value;
                             sample_count++;
                         }
                         index++;

@@ -3,16 +3,16 @@ package com.project.rempaudioeditor.infos;
 import android.content.Context;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.project.rempaudioeditor.utils.FileConverter;
 import com.project.rempaudioeditor.customviews.WaveForm;
 
 
 public class AudioInfo {
-    private OnWaveFormCreatedListener waveform_created_listener;
-    private WaveForm waveForm;
     private final Uri uriFile;
     private final int duration;
 
@@ -27,15 +27,8 @@ public class AudioInfo {
         duration = Integer.parseInt(durationStr);
     }
 
-    public void generateWaveform(@NonNull Context context) {
-        waveForm = FileConverter.createWaveForm(context, uriFile);
-
-        if (waveform_created_listener != null)
-            waveform_created_listener.waveformCreated();
-    }
-
-    public WaveForm getWaveForm() {
-        return waveForm;
+    public WaveForm generateWaveform(@NonNull Context context) {
+        return FileConverter.createWaveForm(context, uriFile);
     }
 
     public Uri getUriFile() {
@@ -44,14 +37,5 @@ public class AudioInfo {
 
     public int getUriDuration() {
         return duration;
-    }
-
-
-    public void setWaveFormCreatedListener(OnWaveFormCreatedListener event_listener) {
-        waveform_created_listener = event_listener;
-    }
-
-    public interface OnWaveFormCreatedListener {
-        void waveformCreated();
     }
 }

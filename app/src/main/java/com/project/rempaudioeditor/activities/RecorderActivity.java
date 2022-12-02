@@ -233,11 +233,8 @@ public class RecorderActivity extends DefaultActivity {
                                 Toast.makeText(this, "File saved successfully!", Toast.LENGTH_SHORT).show();
 
                                 AudioInfo newTrack = new AudioInfo(this, Uri.fromFile(final_rec));
-                                newTrack.setWaveFormCreatedListener(() -> {
-                                    AppMethods.openActivity(this, EditorActivity.class);
-                                    AppMethods.finishActivity(this);
-                                });
-                                newTrack.generateWaveform(this);
+                                AppMethods.openActivity(this, EditorActivity.class);
+                                AppMethods.finishActivity(this);
                                 AudioPlayerData.getInstance().addTrack(newTrack);
                             }
                         }

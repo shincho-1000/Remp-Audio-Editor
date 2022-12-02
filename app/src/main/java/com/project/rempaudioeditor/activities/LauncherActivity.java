@@ -3,14 +3,17 @@ package com.project.rempaudioeditor.activities;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.splashscreen.SplashScreen;
 
 import com.project.rempaudioeditor.AppMethods;
 import com.project.rempaudioeditor.AppSettings;
 import com.project.rempaudioeditor.database.SettingsJsonManager;
 
-public class SplashScreenActivity extends DefaultActivity {
+public class LauncherActivity extends DefaultActivity {
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
 
         // Load settings
@@ -31,4 +34,5 @@ public class SplashScreenActivity extends DefaultActivity {
         AppMethods.openActivity(this, MainActivity.class);
         AppMethods.finishActivity(this);
     }
+
 }

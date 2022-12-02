@@ -13,11 +13,15 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.splashscreen.SplashScreen;
 
 import com.example.rempaudioeditor.R;
+import com.project.rempaudioeditor.AppSettings;
 import com.project.rempaudioeditor.AudioPlayerData;
 import com.project.rempaudioeditor.AppMethods;
 import com.project.rempaudioeditor.constants.AppData;
+import com.project.rempaudioeditor.database.SettingsJsonManager;
 import com.project.rempaudioeditor.utils.FileConverter;
 import com.project.rempaudioeditor.dispatch.DispatchMethods;
 import com.project.rempaudioeditor.infos.AudioInfo;
@@ -32,12 +36,10 @@ public class MainActivity extends DefaultActivity {
     ActivityResultLauncher<String> select_audio_file = registerForActivityResult(new ActivityResultContracts.GetContent(),
             uri -> {
                 if (uri != null) {
-                    AudioInfo newTrack = new AudioInfo(this, uri);
-                    newTrack.setWaveFormCreatedListener(() -> {
-                        AppMethods.openActivity(MainActivity.this, EditorActivity.class);
-                    });
-                    newTrack.generateWaveform(this);
-                    AudioPlayerData.getInstance().addTrack(newTrack);
+                    AudioInfo new_audio = new AudioInfo(this, uri);
+                    AudioPlayerData.getInstance().addTrack(new_audio);
+
+                    AppMethods.openActivity(MainActivity.this, EditorActivity.class);
                 }
             });
 
@@ -75,6 +77,23 @@ public class MainActivity extends DefaultActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Load settings
+        SettingsJsonManager.loadSettings(getApplicationContext());
+
+        switch (AppSettings.getInstance().getThemeId()) {
+            case LIGHT:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                break;
+            case DARK:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                break;
+            default:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                break;
+        }
+
+        SplashScreen.installSplashScreen(this);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -99,7 +118,7 @@ public class MainActivity extends DefaultActivity {
 
     // Button actions
     private void createNewProject() {
-        DispatchMethods.sendPopup(new_project_popup, new Fade());
+        DispatchMethods.sendPopup(new_project_popup, new Fade(), true);
     }
 
     private void openFromAudioFile() {

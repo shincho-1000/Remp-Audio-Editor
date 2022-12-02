@@ -14,6 +14,7 @@
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable-night/icon_settings_white.xml" value="0.167" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable-night/icon_stop.xml" value="0.167" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable-night/icon_text_logo.xml" value="0.2075" />
+        <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable-night/launch_background.xml" value="0.2075" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable-night/mic.xml" value="0.2075" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable-night/selector_radio_btn.xml" value="0.2065" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable-v24/background_editor_seeker.xml" value="0.2075" />
@@ -46,6 +47,8 @@
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable/icon_text_logo.xml" value="0.2075" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable/icon_trim.xml" value="0.2075" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable/icon_volume.xml" value="0.2075" />
+        <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable/launch_background-night.xml" value="0.2075" />
+        <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable/launch_background.xml" value="0.2075" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable/ripple.xml" value="0.2065" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable/round_corners.xml" value="0.2065" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable/rounded_corner.xml" value="0.2075" />
@@ -65,6 +68,8 @@
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/layout/editor_tray_item.xml" value="0.22" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/layout/header.xml" value="0.19895833333333332" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/layout/popup_add_audio.xml" value="0.33" />
+        <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/layout/popup_importing.xml" value="0.25" />
+        <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/layout/popup_loading.xml" value="0.22" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/layout/popup_new_project.xml" value="0.5" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/layout/popup_settings_theme.xml" value="0.25" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/layout/settings_list_item.xml" value="0.2" />

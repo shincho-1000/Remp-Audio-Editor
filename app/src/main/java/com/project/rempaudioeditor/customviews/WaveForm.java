@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -22,7 +23,6 @@ public class WaveForm extends View {
 
     private float no_of_bars = 0;
 
-    public final float BARS_PER_SEC = 20;
     public final double BAR_WIDTH = UnitConverter.convertDpToPx(getContext(), 1.5);
     public final double BAR_DISTANCE = UnitConverter.convertDpToPx(getContext(), 1.2);
     public final double PADDING = UnitConverter.convertDpToPx(getContext(), 12);
@@ -52,7 +52,7 @@ public class WaveForm extends View {
 
     public void setBars(ArrayList<Double> values, float duration_in_milisec) {
         this.values = values;
-        this.no_of_bars = (duration_in_milisec / 1000) * BARS_PER_SEC;
+        this.no_of_bars = values.size();
         requestLayout();
         postInvalidate();
     }
