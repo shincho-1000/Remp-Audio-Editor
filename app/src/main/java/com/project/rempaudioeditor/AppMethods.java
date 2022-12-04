@@ -13,8 +13,8 @@ import androidx.appcompat.app.AppCompatDelegate;
 import com.project.rempaudioeditor.enums.ThemeId;
 
 public class AppMethods {
-    public static void setAppTheme(@NonNull ThemeId themeId) {
-        switch (themeId) {
+    public static void setAppTheme(@NonNull ThemeId theme_id) {
+        switch (theme_id) {
             case LIGHT:
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                 break;
@@ -29,8 +29,8 @@ public class AppMethods {
     }
 
     public static void openActivity(@NonNull Context context,
-                                    @NonNull Class<?> activity_cls) {
-        Intent activity_intent = new Intent(context, activity_cls);
+                                    @NonNull Class<?> activity_class) {
+        Intent activity_intent = new Intent(context, activity_class);
         context.startActivity(activity_intent);
 
     }

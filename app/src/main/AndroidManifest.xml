@@ -64,7 +64,7 @@
                 android:value="com.project.rempaudioeditor.activities.MainActivity" />
         </activity>
 
-        <receiver android:name="com.project.rempaudioeditor.receivers.RecordingReceiver" android:exported="false">
+        <receiver android:name="com.project.rempaudioeditor.broadcast_receivers.RecordingReceiver" android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>

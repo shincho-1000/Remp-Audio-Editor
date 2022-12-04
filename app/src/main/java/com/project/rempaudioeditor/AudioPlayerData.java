@@ -5,7 +5,6 @@ import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.media.audiofx.Visualizer;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -22,8 +21,8 @@ import java.util.ArrayList;
 public class AudioPlayerData {
     private static AudioPlayerData single_instance = null;
 
-    private MediaPlayer mPlayer;
-    private FftAudioVisualizer fftAudioVisualizerView;
+    private MediaPlayer audio_player;
+    private FftAudioVisualizer fft_audio_visualizer_view;
     private Visualizer visualizer;
 
     private boolean released = true;
@@ -50,7 +49,7 @@ public class AudioPlayerData {
                                  @NonNull WaveformSeekbar seekbar,
                                  @Nullable EditText current_duration_edit_view,
                                  @Nullable TextView total_duration_edit_view) {
-        this.fftAudioVisualizerView = fft_audio_visualizer_view;
+        this.fft_audio_visualizer_view = fft_audio_visualizer_view;
 
         seekbar.connectMediaPlayer(context, current_duration_edit_view, total_duration_edit_view);
 
@@ -83,7 +82,7 @@ public class AudioPlayerData {
     }
 
     public void initializeCircleVisualizer() {
-        visualizer = new Visualizer(mPlayer.getAudioSessionId());
+        visualizer = new Visualizer(audio_player.getAudioSessionId());
         visualizer.setCaptureSize(Visualizer.getCaptureSizeRange()[0]);
         visualizer.setScalingMode(Visualizer.SCALING_MODE_NORMALIZED);
         visualizer.setMeasurementMode(Visualizer.MEASUREMENT_MODE_PEAK_RMS);
@@ -95,7 +94,7 @@ public class AudioPlayerData {
 
             @Override
             public void onFftDataCapture(Visualizer visualizer, byte[] fft, int samplingRate) {
-                fftAudioVisualizerView.setBars(FileConverter.formatFft(fft));
+                fft_audio_visualizer_view.setBars(FileConverter.formatFft(fft));
             }
         }, Visualizer.getMaxCaptureRate(), false, true);
 
@@ -113,26 +112,26 @@ public class AudioPlayerData {
 
         if (getReleased()) {
             try {
-                mPlayer = new MediaPlayer();
-                mPlayer.setDataSource(app_context, audioInfo.getUriFile());
-                mPlayer.setAudioAttributes(new AudioAttributes.Builder()
+                audio_player = new MediaPlayer();
+                audio_player.setDataSource(app_context, audioInfo.getUriFile());
+                audio_player.setAudioAttributes(new AudioAttributes.Builder()
                         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                         .setUsage(AudioAttributes.USAGE_MEDIA)
                         .build());
-                mPlayer.prepare();
+                audio_player.prepare();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
             updateCurrentAudioTrackStartAndEnd();
 
-            mPlayer.start();
+            audio_player.start();
 
             released = false;
 
             initializeCircleVisualizer();
 
-            mPlayer.setOnCompletionListener(mp -> {
+            audio_player.setOnCompletionListener(mp -> {
                 current_audio_track_index++;
                 if (current_audio_track_index < audio_tracks.size()) {
                     startPlayer(app_context);
@@ -148,13 +147,13 @@ public class AudioPlayerData {
     }
 
     public void pausePlayer() {
-        if ((!getReleased()) && (mPlayer.isPlaying()))
-            mPlayer.pause();
+        if ((!getReleased()) && (audio_player.isPlaying()))
+            audio_player.pause();
     }
 
     public void resumePlayer() {
-        if ((!getReleased()) && (!mPlayer.isPlaying()))
-            mPlayer.start();
+        if ((!getReleased()) && (!audio_player.isPlaying()))
+            audio_player.start();
     }
 
     public void endPlayer() {
@@ -167,8 +166,8 @@ public class AudioPlayerData {
     }
 
     public void releasePlayer() {
-        mPlayer.release();
-        mPlayer = null;
+        audio_player.release();
+        audio_player = null;
     }
 
     public void releaseVisualizer() {
@@ -177,11 +176,11 @@ public class AudioPlayerData {
     }
 
     public MediaPlayer getPlayer() {
-        return mPlayer;
+        return audio_player;
     }
 
     public boolean getReleased() {
-        if (mPlayer == null) {
+        if (audio_player == null) {
             released = true;
         }
 

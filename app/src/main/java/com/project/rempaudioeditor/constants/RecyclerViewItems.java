@@ -37,11 +37,11 @@ public class RecyclerViewItems {
         itemList.add(new SettingsItemInfo(SETTING_THEME_MAIN_TEXT, theme_desc, THEME));
 
         // Default audio storage dir
-        String default_directory = AppData.getCurrentAudioStorageDir();
+        String default_directory = AppConstants.getCurrentAudioStorageDir();
         itemList.add(new SettingsItemInfo(SETTING_DEFAULT_AUDIO_STORAGE_MAIN_TEXT, default_directory, DEFAULT_AUDIO_STORAGE_DIR));
 
         // About
-        String app_version = "App version: " + AppData.getAppVersion();
+        String app_version = "App version: " + AppConstants.getAppVersion();
         itemList.add(new SettingsItemInfo(SETTING_ABOUT_MAIN_TEXT, app_version, ABOUT));
 
         return itemList;

@@ -13,26 +13,26 @@ import com.project.rempaudioeditor.customviews.WaveForm;
 
 
 public class AudioInfo {
-    private final Uri uriFile;
+    private final Uri uri_file;
     private final int duration;
 
 
     public AudioInfo(@NonNull Context context,
-                     @NonNull Uri uriFile) {
-        this.uriFile = uriFile;
+                     @NonNull Uri uri_file) {
+        this.uri_file = uri_file;
 
-        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        mmr.setDataSource(context, uriFile);
-        String durationStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        duration = Integer.parseInt(durationStr);
+        MediaMetadataRetriever metadata_retriever = new MediaMetadataRetriever();
+        metadata_retriever.setDataSource(context, AudioInfo.this.uri_file);
+        String duration = metadata_retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        this.duration = Integer.parseInt(duration);
     }
 
     public WaveForm generateWaveform(@NonNull Context context) {
-        return FileConverter.createWaveForm(context, uriFile);
+        return FileConverter.createWaveForm(context, uri_file);
     }
 
     public Uri getUriFile() {
-        return uriFile;
+        return uri_file;
     }
 
     public int getUriDuration() {

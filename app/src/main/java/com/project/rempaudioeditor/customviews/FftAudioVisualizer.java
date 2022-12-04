@@ -19,8 +19,8 @@ import java.util.ArrayList;
 
 public class FftAudioVisualizer extends View {
     private final Paint bar_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private VectorDrawableCompat center_img;
-    private ArrayList<Integer> barLengths;
+    private VectorDrawableCompat center_image;
+    private ArrayList<Integer> fft_values;
     private final RectF bar = new RectF();
 
     public FftAudioVisualizer(Context context) {
@@ -46,31 +46,32 @@ public class FftAudioVisualizer extends View {
 
             int drawableId = typedArray.getResourceId(R.styleable.FftAudioVisualizer_centralImage, 0);
             if(drawableId != 0){
-                center_img = VectorDrawableCompat.create(getResources(), drawableId, null);
+                center_image = VectorDrawableCompat.create(getResources(), drawableId, null);
             }
             typedArray.recycle();
         }
     }
 
-    public void setBars(ArrayList<Integer> barLengths) {
-        this.barLengths = barLengths;
+    public void setBars(ArrayList<Integer> fft_values) {
+        this.fft_values = fft_values;
         postInvalidate();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        if ((barLengths != null) && (barLengths.size() != 0)) {
+        if ((fft_values != null) && (fft_values.size() != 0)) {
+            // Keep rotating the canvas and draw a bar in the centre with a max height of one-fourth the canvas height
             int canvas_width = getWidth();
             int canvas_height = getHeight();
             int max_bar_length = canvas_width / 4;
             int min_bar_length = (int) UnitConverter.convertDpToPx(getContext(), 1);
             int bar_width = (int) UnitConverter.convertDpToPx(getContext(), 5);
             int circle_radius = (canvas_width - max_bar_length * 2) / 2;
-            float rotationInDeg = 360f / barLengths.size();
+            float rotationInDeg = 360f / fft_values.size();
 
-            for (int i = 0; i < barLengths.size(); i++) {
-                float bar_height = ((Math.abs(barLengths.get(i)) + min_bar_length) / 128f) * max_bar_length;
+            for (int i = 0; i < fft_values.size(); i++) {
+                float bar_height = ((Math.abs(fft_values.get(i)) + min_bar_length) / 128f) * max_bar_length;
                 bar.left = (canvas_width - bar_width) / 2f;
                 bar.top = canvas_height / 3f - bar_height;
                 bar.right = canvas_width - bar.left;
@@ -79,11 +80,11 @@ public class FftAudioVisualizer extends View {
                 canvas.rotate(rotationInDeg, canvas_width / 2f, canvas_height / 2f);
             }
 
-            if (center_img != null) {
+            if (center_image != null) {
                 int left = (canvas_width - circle_radius) / 2;
                 int top = (canvas_height - circle_radius) / 2;
-                center_img.setBounds(left, top, left + circle_radius, top + circle_radius);
-                center_img.draw(canvas);
+                center_image.setBounds(left, top, left + circle_radius, top + circle_radius);
+                center_image.draw(canvas);
             }
         }
     }

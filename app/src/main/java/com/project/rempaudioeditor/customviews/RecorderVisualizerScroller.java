@@ -52,13 +52,13 @@ public class RecorderVisualizerScroller extends HorizontalScrollView {
         addView(recorderAudioVisualizer);
     }
 
-    public void addAmp(int amp) {
-        recorderAudioVisualizer.addAmp(amp);
+    public void addAmplitude(int amp) {
+        recorderAudioVisualizer.addAmplitude(amp);
         fullScroll(HorizontalScrollView.FOCUS_RIGHT);
     }
 
-    public void clearAmps() {
-        recorderAudioVisualizer.clearAmps();
+    public void clearAmplitudes() {
+        recorderAudioVisualizer.clearAmplitudes();
     }
 
     @SuppressLint("ClickableViewAccessibility")

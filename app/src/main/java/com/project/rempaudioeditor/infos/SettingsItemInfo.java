@@ -1,6 +1,7 @@
 package com.project.rempaudioeditor.infos;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.project.rempaudioeditor.enums.SettingId;
 
@@ -10,7 +11,7 @@ public class SettingsItemInfo {
     private final SettingId setting_id; // Id of the setting
 
     public SettingsItemInfo(@NonNull String main_text,
-                            String desc_text,
+                            @Nullable String desc_text,
                             @NonNull SettingId setting_id) {
         main_text_str = main_text;
         desc_text_str = desc_text;

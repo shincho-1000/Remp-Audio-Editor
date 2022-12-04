@@ -9,7 +9,7 @@ import com.project.rempaudioeditor.AppMethods;
 import com.project.rempaudioeditor.AppSettings;
 import com.project.rempaudioeditor.database.SettingsJsonManager;
 
-public class LauncherActivity extends DefaultActivity {
+public class LauncherActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,7 +19,9 @@ public class LauncherActivity extends DefaultActivity {
         // Load settings
         SettingsJsonManager.loadSettings(getApplicationContext());
 
-        switch (AppSettings.getInstance().getThemeId()) {
+        AppSettings settings = AppSettings.getInstance();
+
+        switch (settings.getThemeId()) {
             case LIGHT:
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
                 break;

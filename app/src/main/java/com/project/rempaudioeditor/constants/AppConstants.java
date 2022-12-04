@@ -9,14 +9,24 @@ import com.project.rempaudioeditor.AppSettings;
 
 import java.io.File;
 
-public class AppData {
+public class AppConstants {
     private static final String APP_VERSION = "0.0";
+    private static final int POPUP_SEND_DELAY_MILISEC = 100;
+    private static final int SET_THEME_DELAY_MILISEC = 500;
     private static final String AUDIO_RECORDING_FILE_NAME = "audioRecord.3gp";
     private static final String APP_EXTERNAL_STORAGE_FOLDER_NAME = "RempAudioEditor";
     private static final String APP_AUDIO_FOLDER_NAME = "RecordedAudio";
 
     public static String getAppVersion() {
         return APP_VERSION;
+    }
+
+    public static int getPopupSendDelayMilisec() {
+        return POPUP_SEND_DELAY_MILISEC;
+    }
+
+    public static int getSetThemeDelayMilisec() {
+        return SET_THEME_DELAY_MILISEC;
     }
 
     public static File getAndroidExternalStorageDir() {

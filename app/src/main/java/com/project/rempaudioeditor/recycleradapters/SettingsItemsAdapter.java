@@ -17,15 +17,15 @@ import java.util.ArrayList;
 public class SettingsItemsAdapter extends RecyclerView.Adapter<SettingsItemsAdapter.ViewHolder> {
 
     private final Context context; // Brings resources to your code
-    private final ArrayList<SettingsItemInfo> itemsList;
-    private final SettingsItemClickListener onClickListener;
+    private final ArrayList<SettingsItemInfo> items_list;
+    private final SettingsItemClickListener on_click_listener;
 
     public SettingsItemsAdapter(Context context,
-                                ArrayList<SettingsItemInfo> itemsList,
-                                SettingsItemClickListener onClickListener){
+                                ArrayList<SettingsItemInfo> items_list,
+                                SettingsItemClickListener on_click_listener){
         this.context = context;
-        this.itemsList = itemsList;
-        this.onClickListener = onClickListener;
+        this.items_list = items_list;
+        this.on_click_listener = on_click_listener;
     }
 
     @NonNull
@@ -33,12 +33,12 @@ public class SettingsItemsAdapter extends RecyclerView.Adapter<SettingsItemsAdap
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                                          int viewType) { // Takes the view to be shown multiple times
         View inflatedView = LayoutInflater.from(context).inflate(R.layout.settings_list_item, parent, false);
-        return new ViewHolder(inflatedView, onClickListener);
+        return new ViewHolder(inflatedView, on_click_listener);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) { // Handles the view taken in onCreateViewHolder
-        SettingsItemInfo item = itemsList.get(position);
+        SettingsItemInfo item = items_list.get(position);
 
         String main_str = item.getMainText();
         String desc_str = item.getDescText();
@@ -48,7 +48,7 @@ public class SettingsItemsAdapter extends RecyclerView.Adapter<SettingsItemsAdap
 
     @Override
     public int getItemCount() {
-        return itemsList.size();
+        return items_list.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {

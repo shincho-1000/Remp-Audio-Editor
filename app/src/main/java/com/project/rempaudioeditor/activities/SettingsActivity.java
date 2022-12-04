@@ -30,23 +30,23 @@ import com.project.rempaudioeditor.dispatch.DispatchMethods;
 import com.project.rempaudioeditor.enums.SettingId;
 import com.project.rempaudioeditor.enums.ThemeId;
 import com.project.rempaudioeditor.infos.SettingsItemInfo;
-import com.project.rempaudioeditor.constants.AppData;
+import com.project.rempaudioeditor.constants.AppConstants;
 import com.project.rempaudioeditor.constants.RecyclerViewItems;
 
 import java.util.ArrayList;
 
-public class SettingsActivity extends DefaultActivity implements SettingsItemsAdapter.SettingsItemClickListener {
+public class SettingsActivity extends BaseActivity implements SettingsItemsAdapter.SettingsItemClickListener {
     private final ArrayList<SettingsItemInfo> settings_items = RecyclerViewItems.getSettingsItemList();
-    private PopupWindow theme_popup = null;
-    private TextView folder_path_text_view;
+    private PopupWindow change_theme_popup = null;
+    private TextView folder_path_view;
 
-    private final ActivityResultLauncher<Uri> select_default_audio_dir = registerForActivityResult(new ActivityResultContracts.OpenDocumentTree(),
+    private final ActivityResultLauncher<Uri> select_default_audio_directory = registerForActivityResult(new ActivityResultContracts.OpenDocumentTree(),
             uri -> {
                 if (uri != null) {
-                    Uri docUri = DocumentsContract.buildDocumentUriUsingTree(uri,
+                    Uri directory_uri = DocumentsContract.buildDocumentUriUsingTree(uri,
                             DocumentsContract.getTreeDocumentId(uri));
-                    String path = UriConverter.getPath(this, docUri);
-                    folder_path_text_view.setText(path);
+                    String directory_path = UriConverter.getPath(this, directory_uri);
+                    folder_path_view.setText(directory_path);
                 }
             });
 
@@ -73,11 +73,11 @@ public class SettingsActivity extends DefaultActivity implements SettingsItemsAd
         LayoutInflater inflater = getLayoutInflater();
         switch (item_id) {
             case THEME:
-                View popup_view = inflater.inflate(R.layout.popup_settings_theme,  null);
+                View change_theme_popup_view = inflater.inflate(R.layout.popup_settings_theme,  null);
 
-                theme_popup = DispatchMethods.sendPopup(popup_view, new Fade(), true);
+                change_theme_popup = DispatchMethods.sendPopup(change_theme_popup_view, new Fade(), true);
 
-                RadioGroup theme_radio_group = popup_view.findViewById(R.id.theme_radio_group);
+                RadioGroup theme_radio_group = change_theme_popup_view.findViewById(R.id.theme_radio_group);
 
                 int current_theme_id = AppCompatDelegate.getDefaultNightMode();
 
@@ -92,19 +92,19 @@ public class SettingsActivity extends DefaultActivity implements SettingsItemsAd
                 theme_radio_group.setOnCheckedChangeListener(this::changeTheme);
                 break;
             case DEFAULT_AUDIO_STORAGE_DIR:
-                ConstraintLayout change_default_audio_dir_dialog_layout = (ConstraintLayout) getLayoutInflater()
+                ConstraintLayout change_default_audio_directory_dialog_layout = (ConstraintLayout) getLayoutInflater()
                         .inflate(R.layout.dialog_content_set_default_audio_storgae_dir, null);
 
-                AlertDialog.Builder dialog_builder = DispatchMethods
-                        .createDialog(this, getString(R.string.dialog_header_settings_change_default_audio_path), change_default_audio_dir_dialog_layout);
+                AlertDialog.Builder change_default_audio_directory_dialog_builder = DispatchMethods
+                        .createDialog(this, getString(R.string.dialog_header_settings_change_default_audio_path), change_default_audio_directory_dialog_layout);
 
-                dialog_builder.setPositiveButton(R.string.button_confirm, (dialog, id) -> {
-                    String folder_path = folder_path_text_view.getText().toString();
+                change_default_audio_directory_dialog_builder.setPositiveButton(R.string.button_confirm, (dialog, id) -> {
+                    String folder_path = folder_path_view.getText().toString();
 
                     if (!folder_path.isEmpty()) {
                         AppSettings.getInstance().setCurrentAudioStorageDir(folder_path);
                     } else {
-                        AppSettings.getInstance().setCurrentAudioStorageDir(AppData.getDefaultAudioStorageDir().getAbsolutePath());
+                        AppSettings.getInstance().setCurrentAudioStorageDir(AppConstants.getDefaultAudioStorageDir().getAbsolutePath());
                     }
 
                     SettingsJsonManager.write(getApplicationContext(), AppSettings.getInstance());
@@ -114,13 +114,13 @@ public class SettingsActivity extends DefaultActivity implements SettingsItemsAd
                     overridePendingTransition(0, 0);
                 });
 
-                dialog_builder.show();
+                change_default_audio_directory_dialog_builder.show();
 
-                folder_path_text_view = change_default_audio_dir_dialog_layout.findViewById(R.id.folder_path_text);
+                folder_path_view = change_default_audio_directory_dialog_layout.findViewById(R.id.folder_path_text);
 
-                ImageButton folder_path_select_btn = change_default_audio_dir_dialog_layout.findViewById(R.id.folder_path_select_btn);
+                ImageButton folder_path_select_btn = change_default_audio_directory_dialog_layout.findViewById(R.id.folder_path_select_btn);
                 folder_path_select_btn
-                        .setOnClickListener((view) -> select_default_audio_dir.launch(Uri.parse(DocumentsContract.EXTRA_INITIAL_URI)));
+                        .setOnClickListener((view) -> select_default_audio_directory.launch(Uri.parse(DocumentsContract.EXTRA_INITIAL_URI)));
                 break;
         }
     }
@@ -137,8 +137,8 @@ public class SettingsActivity extends DefaultActivity implements SettingsItemsAd
             new_mode = ThemeId.SYSTEM_DEF;
         }
 
-        theme_popup.dismiss();
-        new Handler().postDelayed(() -> AppMethods.setAppTheme(new_mode), 500);
+        change_theme_popup.dismiss();
+        new Handler().postDelayed(() -> AppMethods.setAppTheme(new_mode), AppConstants.getSetThemeDelayMilisec());
 
         AppSettings.getInstance().setTheme(new_mode);
         SettingsJsonManager.write(getApplicationContext(), AppSettings.getInstance());

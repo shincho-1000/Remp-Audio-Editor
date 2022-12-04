@@ -43,14 +43,14 @@ public class RecorderAudioVisualizer extends View {
         bar_paint.setColor(Color.BLACK);
     }
 
-    public void addAmp(int amp) {
+    public void addAmplitude(int amp) {
         // Adds an amplitude to the arraylist and requests a redraw
         amplitudes.add(amp);
         requestLayout();
         postInvalidate();
     }
 
-    public void clearAmps() {
+    public void clearAmplitudes() {
         // Clears all amps and requests a redraw
         amplitudes.clear();
         requestLayout();
@@ -70,7 +70,6 @@ public class RecorderAudioVisualizer extends View {
             for (int i = 0; i < amplitudes.size(); i++) {
                 int amp = amplitudes.get(i);
                 double ampRatio = (amp/MAX_POSSIBLE_AMP);
-
 
                 float bar_height = (float) (ampRatio * canvas_height + MIN_BAR_LENGTH);
                 bar.top = (canvas_height - bar_height)/2;

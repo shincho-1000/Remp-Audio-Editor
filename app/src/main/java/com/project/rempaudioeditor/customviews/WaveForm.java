@@ -50,7 +50,7 @@ public class WaveForm extends View {
         bar_paint.setColor(color);
     }
 
-    public void setBars(ArrayList<Double> values, float duration_in_milisec) {
+    public void setBars(ArrayList<Double> values) {
         this.values = values;
         this.no_of_bars = values.size();
         requestLayout();

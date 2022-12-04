@@ -24,48 +24,48 @@ public class DispatchMethods {
     public static PopupWindow sendPopup(@NonNull View popup_view,
                                         @NonNull Transition transition,
                                         @NonNull Boolean focusable) {
-        PopupWindow popupWindow = new PopupWindow(popup_view,
+        PopupWindow popup_window = new PopupWindow(popup_view,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 focusable);
-        popupWindow.setEnterTransition(transition);
-        popupWindow.setExitTransition(transition);
-        popupWindow.showAtLocation(popup_view, Gravity.CENTER, 0, 0);
+        popup_window.setEnterTransition(transition);
+        popup_window.setExitTransition(transition);
+        popup_window.showAtLocation(popup_view, Gravity.CENTER, 0, 0);
 
         // Dim the background
-        View container = popupWindow.getContentView().getRootView();
-        Context context = popupWindow.getContentView().getContext();
+        View container = popup_window.getContentView().getRootView();
+        Context context = popup_window.getContentView().getContext();
         WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         WindowManager.LayoutParams layoutParams = (WindowManager.LayoutParams) container.getLayoutParams();
         layoutParams.flags |= WindowManager.LayoutParams.FLAG_DIM_BEHIND;
         layoutParams.dimAmount = 0.3f;
         windowManager.updateViewLayout(container, layoutParams);
 
-        return popupWindow;
+        return popup_window;
     }
 
     public static AlertDialog.Builder createDialog(@NonNull Context context,
                                                    @Nullable String dialog_header,
                                                    @Nullable View view) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.Theme_AlertDialogTheme);
+        AlertDialog.Builder alert_dialog_builder = new AlertDialog.Builder(context, R.style.Theme_AlertDialogTheme);
 
         if (dialog_header != null)
-            builder.setTitle(dialog_header);
+            alert_dialog_builder.setTitle(dialog_header);
 
         if (view != null)
-            builder.setView(view);
+            alert_dialog_builder.setView(view);
 
-        return builder;
+        return alert_dialog_builder;
     }
 
-    // Specifies why why the app needs a permission and requests it
+    // Specifies why the app needs a permission and requests it
     public static void createPermissionRequiredDialog(@NonNull Context context,
                                                       @NonNull String dialog_header,
                                                       @NonNull String dialog_desc,
                                                       @NonNull String[] permissions,
                                                       int permission_request_code) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.Theme_AlertDialogTheme);
-        builder.setTitle(dialog_header);
+        AlertDialog.Builder alert_dialog_builder = new AlertDialog.Builder(context, R.style.Theme_AlertDialogTheme);
+        alert_dialog_builder.setTitle(dialog_header);
 
         TextView desc_textview = new TextView(context);
         desc_textview.setText(dialog_desc);
@@ -73,16 +73,16 @@ public class DispatchMethods {
         int alertDialogPadding = AttrDataRetriever
                 .getDimensionFromAttr(context, com.google.android.material.R.attr.dialogPreferredPadding);
         desc_textview.setPadding(alertDialogPadding, alertDialogPadding, alertDialogPadding, alertDialogPadding);
-        builder.setView(desc_textview);
+        alert_dialog_builder.setView(desc_textview);
 
-        builder.setPositiveButton(R.string.button_confirm, (dialog, id) -> {
+        alert_dialog_builder.setPositiveButton(R.string.button_confirm, (dialog, id) -> {
             ActivityCompat.requestPermissions((Activity) context, permissions, permission_request_code);
         });
 
-        builder.setNegativeButton(R.string.button_cancel, (dialog, id) -> {
+        alert_dialog_builder.setNegativeButton(R.string.button_cancel, (dialog, id) -> {
 
         });
 
-        builder.show().setCanceledOnTouchOutside(false);
+        alert_dialog_builder.show().setCanceledOnTouchOutside(false);
     }
 }

@@ -2,6 +2,7 @@ package com.project.rempaudioeditor.activities;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.transition.Fade;
@@ -23,6 +24,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.rempaudioeditor.R;
 import com.project.rempaudioeditor.AudioPlayerData;
 import com.project.rempaudioeditor.AppMethods;
+import com.project.rempaudioeditor.AudioRecorderData;
+import com.project.rempaudioeditor.constants.AppConstants;
 import com.project.rempaudioeditor.infos.AudioInfo;
 import com.project.rempaudioeditor.recycleradapters.EditorTrayItemAdapter;
 import com.project.rempaudioeditor.dispatch.DispatchMethods;
@@ -32,7 +35,9 @@ import com.project.rempaudioeditor.customviews.WaveformSeekbar;
 
 import java.util.ArrayList;
 
-public class EditorActivity extends DefaultActivity implements EditorTrayItemAdapter.EditorTrayItemClickListener {
+public class EditorActivity extends BaseActivity implements EditorTrayItemAdapter.EditorTrayItemClickListener {
+    private AudioPlayerData audio_player_data;
+
     private final ArrayList<EditorTrayItemInfo> tray_items = RecyclerViewItems.getEditorTrayItemList();
 
     private ImageView play_audio_btn;
@@ -54,15 +59,15 @@ public class EditorActivity extends DefaultActivity implements EditorTrayItemAda
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
 
-        LinearLayoutManager trayListManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        EditorTrayItemAdapter trayArrayAdapter = new EditorTrayItemAdapter(this, tray_items, this);
-        RecyclerView trayListView = findViewById(R.id.editor_tray);
-        trayListView.setLayoutManager(trayListManager);
-        trayListView.setAdapter(trayArrayAdapter);
+        LinearLayoutManager editor_tray_list_manager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        EditorTrayItemAdapter editor_tray_adapter = new EditorTrayItemAdapter(this, tray_items, this);
+        RecyclerView tray_list_view = findViewById(R.id.editor_tray);
+        tray_list_view.setLayoutManager(editor_tray_list_manager);
+        tray_list_view.setAdapter(editor_tray_adapter);
 
-        LayoutInflater layoutInflater = getLayoutInflater();
-        add_audio_popup = layoutInflater.inflate(R.layout.popup_add_audio, null);
-        loading_popup = layoutInflater.inflate(R.layout.popup_importing, null);
+        LayoutInflater layout_inflater = getLayoutInflater();
+        add_audio_popup = layout_inflater.inflate(R.layout.popup_add_audio, null);
+        loading_popup = layout_inflater.inflate(R.layout.popup_importing, null);
 
         play_audio_btn = findViewById(R.id.play_audio_btn);
         play_audio_btn.setOnClickListener(view -> togglePlay());
@@ -92,7 +97,7 @@ public class EditorActivity extends DefaultActivity implements EditorTrayItemAda
             AudioPlayerData.getInstance().setPlayerInitializedListener(() -> {
                 runOnUiThread(loading_popup_window::dismiss);
             });
-        },100);
+        }, AppConstants.getPopupSendDelayMilisec());
     }
 
     // Button actions
@@ -104,9 +109,9 @@ public class EditorActivity extends DefaultActivity implements EditorTrayItemAda
             if (view_in_focus instanceof EditText) {
                 Rect rect = new Rect();
                 view_in_focus.getGlobalVisibleRect(rect);
-                int rawX = (int) ev.getRawX();
-                int rawY = (int) ev.getRawY();
-                if (!rect.contains(rawX, rawY)) {
+                int touch_x_coordinate = (int) ev.getRawX();
+                int touch_y_coordinate = (int) ev.getRawY();
+                if (!rect.contains(touch_x_coordinate, touch_y_coordinate)) {
                     view_in_focus.clearFocus();
                     InputMethodManager input_method_manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     input_method_manager.hideSoftInputFromWindow(view_in_focus.getWindowToken(), 0);
@@ -117,9 +122,10 @@ public class EditorActivity extends DefaultActivity implements EditorTrayItemAda
     }
 
     private void togglePlay() {
-        AudioPlayerData audio_player_data = AudioPlayerData.getInstance();
-        if (audio_player_data.getPlayer() != null) {
-            if (audio_player_data.getPlayer().isPlaying()) {
+        audio_player_data = AudioPlayerData.getInstance();
+        MediaPlayer audio_player = audio_player_data.getPlayer();
+        if (audio_player != null) {
+            if (audio_player.isPlaying()) {
                 audio_player_data.pausePlayer();
                 play_audio_btn.setImageResource(R.drawable.icon_play);
             } else {
@@ -130,7 +136,8 @@ public class EditorActivity extends DefaultActivity implements EditorTrayItemAda
             audio_player_data.startPlayer(this);
             play_audio_btn.setImageResource(R.drawable.icon_pause);
 
-            AudioPlayerData.getInstance().getPlayer().setOnCompletionListener(mp -> play_audio_btn.setImageResource(R.drawable.icon_play));
+            audio_player = audio_player_data.getPlayer();
+            audio_player.setOnCompletionListener(mp -> play_audio_btn.setImageResource(R.drawable.icon_play));
         }
     }
 

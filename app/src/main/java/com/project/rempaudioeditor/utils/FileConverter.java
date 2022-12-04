@@ -1,6 +1,5 @@
 package com.project.rempaudioeditor.utils;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
@@ -8,24 +7,16 @@ import android.media.MediaFormat;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaMuxer;
 import android.net.Uri;
-import android.os.Handler;
-import android.transition.Fade;
 import android.util.Log;
-import android.widget.PopupWindow;
-import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
-import com.project.rempaudioeditor.AudioPlayerData;
 import com.project.rempaudioeditor.customviews.WaveForm;
-import com.project.rempaudioeditor.dispatch.DispatchMethods;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 public class FileConverter {
@@ -140,7 +131,7 @@ public class FileConverter {
                         break;
                 }
             }
-            waveForm.setBars(waveValues, audio_duration_in_milisec);
+            waveForm.setBars(waveValues);
             mediaCodec.stop();
             mediaCodec.release();
         } catch (IOException e) {

@@ -6,7 +6,7 @@ import android.os.Handler;
 
 import androidx.annotation.NonNull;
 
-import com.project.rempaudioeditor.constants.AppData;
+import com.project.rempaudioeditor.constants.AppConstants;
 import com.project.rempaudioeditor.customviews.RecorderVisualizerScroller;
 
 import java.io.IOException;
@@ -50,7 +50,7 @@ public class AudioRecorderData {
             media_recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             media_recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
             media_recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-            media_recorder.setOutputFile(AppData.getAppAudioRecordingFilePath(context));
+            media_recorder.setOutputFile(AppConstants.getAppAudioRecordingFilePath(context));
             try {
                 media_recorder.prepare();
             } catch (IOException e) {
@@ -77,7 +77,7 @@ public class AudioRecorderData {
         updateVisualizer();
     }
 
-    public void stopRec() {
+    public void stopRecording() {
         if (media_recorder != null) {
             media_recorder.stop();
             media_recorder.release();
@@ -93,12 +93,12 @@ public class AudioRecorderData {
     private void updateVisualizer() {
         if ((media_recorder != null) && (recording)) {
             int amp = media_recorder.getMaxAmplitude();
-            recorder_visualizer_wrapper.addAmp(amp);
+            recorder_visualizer_wrapper.addAmplitude(amp);
             audio_rec_handler.postDelayed(runnable, 50);
         }
     }
 
     private void clearVisualizer() {
-        recorder_visualizer_wrapper.clearAmps();
+        recorder_visualizer_wrapper.clearAmplitudes();
     }
 }

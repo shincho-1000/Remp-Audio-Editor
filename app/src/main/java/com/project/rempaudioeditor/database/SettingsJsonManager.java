@@ -51,34 +51,34 @@ public class SettingsJsonManager {
 
     public static void loadSettings(@NonNull Context context) {
         if (context.getFileStreamPath(SETTINGS_FILE_NAME).exists()) {
-            ThemeId appThemeId = null;
-            String defaultAudioStorageDir = null;
+            ThemeId app_theme_id = null;
+            String default_audio_storage_directory = null;
             try {
                 JSONObject settings_json = new JSONObject(FileManager.readStringFileFromAppDirectory(context, SETTINGS_FILE_NAME));
                 if (settings_json.has(SETTINGS_THEME_OBJECT)) {
                     switch (settings_json.getString(SETTINGS_THEME_OBJECT)) {
                         case SETTINGS_THEME_LIGHT:
-                            appThemeId = ThemeId.LIGHT;
+                            app_theme_id = ThemeId.LIGHT;
                             break;
                         case SETTINGS_THEME_DARK:
-                            appThemeId = ThemeId.DARK;
+                            app_theme_id = ThemeId.DARK;
                             break;
                         case SETTINGS_THEME_SYSTEM_DEF:
-                            appThemeId = ThemeId.SYSTEM_DEF;
+                            app_theme_id = ThemeId.SYSTEM_DEF;
                             break;
                     }
                 }
 
                 if (settings_json.has(SETTINGS_DEFAULT_AUDIO_STORAGE_OBJECT)) {
-                    defaultAudioStorageDir = settings_json.getString(SETTINGS_DEFAULT_AUDIO_STORAGE_OBJECT);
+                    default_audio_storage_directory = settings_json.getString(SETTINGS_DEFAULT_AUDIO_STORAGE_OBJECT);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
             AppSettings settingsInfo = AppSettings.getInstance();
-            settingsInfo.setTheme(appThemeId);
-            settingsInfo.setCurrentAudioStorageDir(defaultAudioStorageDir);
+            settingsInfo.setTheme(app_theme_id);
+            settingsInfo.setCurrentAudioStorageDir(default_audio_storage_directory);
         } else {
             loadDefaultSettings();
             write(context, AppSettings.getInstance());

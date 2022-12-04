@@ -20,7 +20,7 @@ import com.example.rempaudioeditor.R;
 import com.project.rempaudioeditor.AppSettings;
 import com.project.rempaudioeditor.AudioPlayerData;
 import com.project.rempaudioeditor.AppMethods;
-import com.project.rempaudioeditor.constants.AppData;
+import com.project.rempaudioeditor.constants.AppConstants;
 import com.project.rempaudioeditor.database.SettingsJsonManager;
 import com.project.rempaudioeditor.utils.FileConverter;
 import com.project.rempaudioeditor.dispatch.DispatchMethods;
@@ -29,7 +29,7 @@ import com.project.rempaudioeditor.infos.AudioInfo;
 import java.io.File;
 import java.io.IOException;
 
-public class MainActivity extends DefaultActivity {
+public class MainActivity extends BaseActivity {
 
     private View new_project_popup;
 
@@ -37,8 +37,8 @@ public class MainActivity extends DefaultActivity {
             uri -> {
                 if (uri != null) {
                     AudioInfo new_audio = new AudioInfo(this, uri);
-                    AudioPlayerData.getInstance().addTrack(new_audio);
-
+                    AudioPlayerData audio_player_data = AudioPlayerData.getInstance();
+                    audio_player_data.addTrack(new_audio);
                     AppMethods.openActivity(MainActivity.this, EditorActivity.class);
                 }
             });
@@ -47,23 +47,22 @@ public class MainActivity extends DefaultActivity {
             uri -> {
                 if (uri != null) {
                     // TODO: start the editor when this is done
+                    LinearLayout storage_dialog_layout = (LinearLayout) getLayoutInflater().inflate(R.layout.dialog_content_save_file, null);
 
-                    LinearLayout storage_query_dialog_layout = (LinearLayout) getLayoutInflater().inflate(R.layout.dialog_content_save_file, null);
+                    AlertDialog.Builder storage_dialog_builder = DispatchMethods
+                            .createDialog(this, getString(R.string.dialog_header_video_extraction_rec), storage_dialog_layout);
 
-                    AlertDialog.Builder storage_query_dialog_builder = DispatchMethods
-                            .createDialog(this, getString(R.string.dialog_header_video_extraction_rec), storage_query_dialog_layout);
+                    storage_dialog_builder.setPositiveButton(R.string.button_confirm, (dialog, id) -> {
+                        EditText file_name_view = storage_dialog_layout.findViewById(R.id.file_name_text);
+                        String source_file = file_name_view.getText().toString();
 
-                    storage_query_dialog_builder.setPositiveButton(R.string.button_confirm, (dialog, id) -> {
-                        EditText file_name_edit_text = storage_query_dialog_layout.findViewById(R.id.file_name_text);
-                        String file_name = file_name_edit_text.getText().toString();
-
-                        if (!file_name.isEmpty()) {
-                            File dir = new File(AppData.getCurrentAudioStorageDir());
-                            if (dir.exists()) {
-                                File final_rec = new File(dir, file_name);
+                        if (!source_file.isEmpty()) {
+                            File directory = new File(AppConstants.getCurrentAudioStorageDir());
+                            if (directory.exists()) {
+                                File destination_file = new File(directory, source_file);
                                 Toast.makeText(this, "File saved successfully!", Toast.LENGTH_SHORT).show();
                                 try {
-                                    FileConverter.extractAudioFromVideo(this, uri, final_rec.getPath(), -1, -1);
+                                    FileConverter.extractAudioFromVideo(this, uri, destination_file.getPath(), -1, -1);
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -71,49 +70,32 @@ public class MainActivity extends DefaultActivity {
                         }
                     });
 
-                    storage_query_dialog_builder.show().setCanceledOnTouchOutside(false);
+                    storage_dialog_builder.show().setCanceledOnTouchOutside(false);
                 }
             });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Load settings
-        SettingsJsonManager.loadSettings(getApplicationContext());
-
-        switch (AppSettings.getInstance().getThemeId()) {
-            case LIGHT:
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                break;
-            case DARK:
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                break;
-            default:
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
-                break;
-        }
-
-        SplashScreen.installSplashScreen(this);
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        LayoutInflater layoutInflater = getLayoutInflater();
-        new_project_popup = layoutInflater.inflate(R.layout.popup_new_project, null);
+        LayoutInflater layout_inflater = getLayoutInflater();
+        new_project_popup = layout_inflater.inflate(R.layout.popup_new_project, null);
 
-        ImageButton open_setting_btn = findViewById(R.id.settings_btn);
-        open_setting_btn.setOnClickListener(v -> AppMethods.openActivity(this, SettingsActivity.class));
+        ImageButton open_settings_btn = findViewById(R.id.settings_btn);
+        open_settings_btn.setOnClickListener(view -> AppMethods.openActivity(this, SettingsActivity.class));
 
         ImageButton new_project_btn = findViewById(R.id.new_project_btn);
-        new_project_btn.setOnClickListener(v -> createNewProject());
+        new_project_btn.setOnClickListener(view -> createNewProject());
 
         Button record_new_audio_btn = new_project_popup.findViewById(R.id.new_project_recording_btn);
-        record_new_audio_btn.setOnClickListener(v -> AppMethods.openActivity(this, RecorderActivity.class));
+        record_new_audio_btn.setOnClickListener(view -> AppMethods.openActivity(this, RecorderActivity.class));
 
         Button open_from_audio_file_btn = new_project_popup.findViewById(R.id.new_project_from_existing_file_btn);
-        open_from_audio_file_btn.setOnClickListener(v -> openFromAudioFile());
+        open_from_audio_file_btn.setOnClickListener(view -> openFromAudioFile());
 
         Button open_from_video_file_btn = new_project_popup.findViewById(R.id.new_project_from_video_btn);
-        open_from_video_file_btn.setOnClickListener(v -> openFromVideoFile());
+        open_from_video_file_btn.setOnClickListener(view -> openFromVideoFile());
     }
 
     // Button actions

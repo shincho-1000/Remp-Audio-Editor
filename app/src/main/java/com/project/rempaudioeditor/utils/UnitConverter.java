@@ -10,7 +10,7 @@ public class UnitConverter {
         return (int) (dp * scale);
     }
 
-    public static String formatMilisec(long milisec_to_convert){
+    public static String formatToMilisec(long milisec_to_convert){
         long sec_to_convert = milisec_to_convert/1000;
         long hours = (sec_to_convert % 86400) / 3600;
         long minutes = (sec_to_convert % 3600) / 60;

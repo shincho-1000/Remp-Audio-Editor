@@ -16,18 +16,15 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.rempaudioeditor.R;
 import com.project.rempaudioeditor.AudioPlayerData;
-import com.project.rempaudioeditor.activities.MainActivity;
-import com.project.rempaudioeditor.utils.UnitConverter;
 import com.project.rempaudioeditor.infos.AudioInfo;
+import com.project.rempaudioeditor.utils.UnitConverter;
 
 import java.util.ArrayList;
 
@@ -35,15 +32,15 @@ public class WaveformSeekbar extends HorizontalScrollView {
     private AudioPlayerData audio_player_data;
     private final Handler seekHandler = new Handler();
 
-    private int barColor = Color.BLACK;
-    private int pinColor = Color.MAGENTA;
+    private int bar_color = Color.BLACK;
+    private int pin_color = Color.MAGENTA;
     private Drawable waveform_background;
-    private EditText currentPosView;
+    private EditText current_position_view;
 
     private int total_duration;
     private ArrayList<AudioInfo> audio_tracks;
 
-    private int flingPreviousPosition;
+    private int fling_previous_position;
 
     private OnWaveFormCreatedListener waveform_created_listener;
 
@@ -61,9 +58,9 @@ public class WaveformSeekbar extends HorizontalScrollView {
     private final Paint pin_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     public final float PIN_WIDTH = (float) UnitConverter.convertDpToPx(getContext(), 3);
 
-    Runnable waveformUpdater = this::updateWaveformSeekbar;
+    Runnable waveform_updater = this::updateWaveformSeekbar;
 
-    Runnable flingChecker = this::checkFling;
+    Runnable fling_checker = this::checkFling;
 
     public WaveformSeekbar(Context context) {
         super(context);
@@ -85,16 +82,16 @@ public class WaveformSeekbar extends HorizontalScrollView {
             TypedArray typedArray = getContext()
                     .obtainStyledAttributes(attrsSet, R.styleable.WaveformSeekbar);
 
-            barColor = typedArray.getColor(R.styleable.WaveformSeekbar_waveBarColor, Color.BLACK);
+            bar_color = typedArray.getColor(R.styleable.WaveformSeekbar_waveBarColor, Color.BLACK);
             waveform_background = typedArray.getDrawable(R.styleable.WaveformSeekbar_waveBackground);
-            pinColor = typedArray.getColor(R.styleable.WaveformSeekbar_pinColor, Color.MAGENTA);
+            pin_color = typedArray.getColor(R.styleable.WaveformSeekbar_pinColor, Color.MAGENTA);
 
             typedArray.recycle();
         }
         setHorizontalScrollBarEnabled(false);
     }
 
-    public void connectMediaPlayer(@NonNull Context context, @Nullable EditText currentPosView, @Nullable TextView totalDurationView) {
+    public void connectMediaPlayer(@NonNull Context context, @Nullable EditText current_position_view, @Nullable TextView total_duration_view) {
         this.audio_player_data = AudioPlayerData.getInstance();
         this.audio_tracks = audio_player_data.getTrackList();
 
@@ -113,7 +110,7 @@ public class WaveformSeekbar extends HorizontalScrollView {
                 WaveForm waveForm = audio_tracks.get(i).generateWaveform(getContext());
                 ((Activity) context).runOnUiThread(() -> {
                     child_layout.addView(waveForm);
-                    waveForm.setBarColor(barColor);
+                    waveForm.setBarColor(bar_color);
                     waveForm.setBackground(waveform_background);
                 });
             }
@@ -126,14 +123,14 @@ public class WaveformSeekbar extends HorizontalScrollView {
         conversion.start();
 
         total_duration = audio_player_data.getPlayerTotalDuration();
-        if (totalDurationView != null)
-            totalDurationView.setText(UnitConverter.formatMilisec(total_duration));
+        if (total_duration_view != null)
+            total_duration_view.setText(UnitConverter.formatToMilisec(total_duration));
 
         updateWaveformSeekbar();
 
-        this.currentPosView = currentPosView;
-        if (currentPosView != null) {
-            currentPosView.setOnEditorActionListener((view, actionId, event) -> {
+        this.current_position_view = current_position_view;
+        if (current_position_view != null) {
+            current_position_view.setOnEditorActionListener((view, actionId, event) -> {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     if ((audio_player_data.getPlayer() != null) && (!audio_player_data.getReleased())) {
                         int edit_text_position = (int) UnitConverter
@@ -177,7 +174,7 @@ public class WaveformSeekbar extends HorizontalScrollView {
         }
         WaveForm waveForm = audioTrack.generateWaveform(getContext());
         child_layout.addView(waveForm);
-        waveForm.setBarColor(barColor);
+        waveForm.setBarColor(bar_color);
         waveForm.setBackground(waveform_background);
     }
 
@@ -195,19 +192,19 @@ public class WaveformSeekbar extends HorizontalScrollView {
 
     private void updateWaveformSeekbar() {
         if ((!audio_player_data.getReleased()) && (audio_player_data.getPlayer().isPlaying())) {
-            if (currentPosView != null && !currentPosView.hasFocus()) {
-                currentPosView.setText(UnitConverter
-                        .formatMilisec((audio_player_data.getPlayer().getCurrentPosition() + audio_player_data.getCurrentAudioTrackStart())));
+            if (current_position_view != null && !current_position_view.hasFocus()) {
+                current_position_view.setText(UnitConverter
+                        .formatToMilisec((audio_player_data.getPlayer().getCurrentPosition() + audio_player_data.getCurrentAudioTrackStart())));
             }
             setWaveformProgress(audio_player_data.getPlayer().getCurrentPosition());
         }
 
-        seekHandler.postDelayed(waveformUpdater, 50);
+        seekHandler.postDelayed(waveform_updater, 50);
     }
 
-    public void setWaveformProgress(long milisec_position) {
+    public void setWaveformProgress(long position_milisec) {
         if (getChildCount() > 0) {
-            double ratio = (double) (milisec_position + audio_player_data.getCurrentAudioTrackStart()) / total_duration;
+            double ratio = (double) (position_milisec + audio_player_data.getCurrentAudioTrackStart()) / total_duration;
             smoothScrollTo((int) (ratio * getChildAt(0).getWidth()), 0);
         }
     }
@@ -233,9 +230,9 @@ public class WaveformSeekbar extends HorizontalScrollView {
             audio_player_data.getPlayer().seekTo((int) ((ratio * total_duration) - audio_player_data.getCurrentAudioTrackStart()));
         }
 
-        if (currentPosView != null && !currentPosView.hasFocus()) {
-            currentPosView.setText(UnitConverter
-                    .formatMilisec((int) ((ratio * total_duration) - audio_player_data.getCurrentAudioTrackStart())));
+        if (current_position_view != null && !current_position_view.hasFocus()) {
+            current_position_view.setText(UnitConverter
+                    .formatToMilisec((int) ((ratio * total_duration) - audio_player_data.getCurrentAudioTrackStart())));
         }
     }
 
@@ -271,14 +268,14 @@ public class WaveformSeekbar extends HorizontalScrollView {
     }
 
     private void checkFling() {
-        int position = getScrollX();
-        if (flingPreviousPosition - position == 0) {
+        int current_position = getScrollX();
+        if (fling_previous_position - current_position == 0) {
             if ((!audio_player_data.getReleased()) && (!audio_player_data.getPlayer().isPlaying())) {
                 seekPlayer();
             }
         } else {
-            flingPreviousPosition = getScrollX();
-            postDelayed(flingChecker, 50);
+            fling_previous_position = getScrollX();
+            postDelayed(fling_checker, 50);
         }
     }
 
@@ -291,7 +288,7 @@ public class WaveformSeekbar extends HorizontalScrollView {
         pin.top = 0;
         pin.bottom = getHeight();
 
-        pin_paint.setColor(pinColor);
+        pin_paint.setColor(pin_color);
         setPadding(getWidth()/2, 0, getWidth()/2, 0);
         setClipToPadding(false);
         setScrollBarStyle(SCROLLBARS_OUTSIDE_INSET);

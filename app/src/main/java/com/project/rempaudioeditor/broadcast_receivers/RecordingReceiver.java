@@ -1,4 +1,4 @@
-package com.project.rempaudioeditor.receivers;
+package com.project.rempaudioeditor.broadcast_receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
