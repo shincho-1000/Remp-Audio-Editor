@@ -70,6 +70,8 @@
             </intent-filter>
         </receiver>
 
+        <service android:name="com.project.rempaudioeditor.services.KillNotificationsService"/>
+
     </application>
 
 </manifest>

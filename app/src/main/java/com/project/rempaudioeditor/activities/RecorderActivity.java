@@ -27,13 +27,13 @@ import com.example.rempaudioeditor.R;
 import com.project.rempaudioeditor.AppMethods;
 import com.project.rempaudioeditor.AudioPlayerData;
 import com.project.rempaudioeditor.AudioRecorderData;
+import com.project.rempaudioeditor.broadcast_receivers.RecordingReceiver;
 import com.project.rempaudioeditor.constants.AppConstants;
 import com.project.rempaudioeditor.constants.NotificationIds;
 import com.project.rempaudioeditor.constants.PermissionRequestConstants;
 import com.project.rempaudioeditor.customviews.RecorderVisualizerScroller;
 import com.project.rempaudioeditor.dispatch.DispatchMethods;
 import com.project.rempaudioeditor.infos.AudioInfo;
-import com.project.rempaudioeditor.broadcast_receivers.RecordingReceiver;
 
 import java.io.File;
 
@@ -129,20 +129,7 @@ public class RecorderActivity extends BaseActivity {
                 public void run() {
                     if (audio_recorder_data.ifRecording()) {
                         timer_notification_handler.postDelayed(this, NOTIFICATION_UPDATE_DELAY_MILISEC);
-
-                        NotificationCompat.Builder notification_builder = new NotificationCompat.Builder(RecorderActivity.this, "RempAudioEditorNotification")
-                                .setContentTitle("Recording...")
-                                .setContentText(recorder_timer.getText())
-                                .setSmallIcon(R.drawable.app_logo)
-                                .addAction(R.drawable.icon_pause, "Toggle", AppMethods.makePendingIntent(RecorderActivity.this, ACTION_TOGGLE, recording_receiver))
-                                .addAction(R.drawable.icon_stop, "Stop", AppMethods.makePendingIntent(RecorderActivity.this, ACTION_STOP, recording_receiver))
-                                .addAction(R.drawable.icon_delete, "Delete", AppMethods.makePendingIntent(RecorderActivity.this, ACTION_DELETE, recording_receiver))
-                                .setStyle(new androidx.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(0,1,2))
-                                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                                .setOnlyAlertOnce(true)
-                                .setOngoing(true);
-
-                        recording_notification_manager.notify(NotificationIds.getRecordingNotificationId(), notification_builder.build());
+                        sendRecordingNotification("Recording...");
                     }
                 }
             }, NOTIFICATION_UPDATE_DELAY_MILISEC);
@@ -157,20 +144,7 @@ public class RecorderActivity extends BaseActivity {
                     public void run() {
                         if (audio_recorder_data.ifRecording()) {
                             timer_notification_handler.postDelayed(this, NOTIFICATION_UPDATE_DELAY_MILISEC);
-
-                            NotificationCompat.Builder notification_builder = new NotificationCompat.Builder(RecorderActivity.this, "RempAudioEditorNotification")
-                                    .setContentTitle("Recording...")
-                                    .setContentText(recorder_timer.getText())
-                                    .setSmallIcon(R.drawable.app_logo)
-                                    .addAction(R.drawable.icon_pause, "Toggle", AppMethods.makePendingIntent(RecorderActivity.this, ACTION_TOGGLE, recording_receiver))
-                                    .addAction(R.drawable.icon_stop, "Stop", AppMethods.makePendingIntent(RecorderActivity.this, ACTION_STOP, recording_receiver))
-                                    .addAction(R.drawable.icon_delete, "Delete", AppMethods.makePendingIntent(RecorderActivity.this, ACTION_DELETE, recording_receiver))
-                                    .setStyle(new androidx.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(0,1,2))
-                                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                                    .setOnlyAlertOnce(true)
-                                    .setOngoing(true);
-
-                            recording_notification_manager.notify(NotificationIds.getRecordingNotificationId(), notification_builder.build());
+                            sendRecordingNotification("Recording...");
                         }
                     }
                 }, NOTIFICATION_UPDATE_DELAY_MILISEC);
@@ -180,19 +154,7 @@ public class RecorderActivity extends BaseActivity {
                 recorder_timer.stop();
                 recorder_toggle_btn.setImageResource(R.drawable.icon_mic);
 
-                NotificationCompat.Builder notification_builder = new NotificationCompat.Builder(this, "RempAudioEditorNotification")
-                        .setContentTitle("Recording - Paused")
-                        .setContentText(recorder_timer.getText())
-                        .setSmallIcon(R.drawable.app_logo)
-                        .addAction(R.drawable.icon_play, "Toggle", AppMethods.makePendingIntent(this, ACTION_TOGGLE, recording_receiver))
-                        .addAction(R.drawable.icon_stop, "Stop", AppMethods.makePendingIntent(this, ACTION_STOP, recording_receiver))
-                        .addAction(R.drawable.icon_delete, "Delete", AppMethods.makePendingIntent(this, ACTION_DELETE, recording_receiver))
-                        .setStyle(new androidx.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(0,1,2))
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                        .setOnlyAlertOnce(true)
-                        .setOngoing(true);
-
-                recording_notification_manager.notify(NotificationIds.getRecordingNotificationId(), notification_builder.build());
+                sendRecordingNotification("Recording - Paused");
             }
         }
     }
@@ -263,6 +225,22 @@ public class RecorderActivity extends BaseActivity {
         }
     }
 
+    public void sendRecordingNotification(String title) {
+        NotificationCompat.Builder notification_builder = new NotificationCompat.Builder(this, "RempAudioEditorNotification")
+                .setContentTitle(title)
+                .setContentText(recorder_timer.getText())
+                .setSmallIcon(R.drawable.app_logo)
+                .addAction(R.drawable.icon_play, "Toggle", AppMethods.makePendingIntent(this, ACTION_TOGGLE, recording_receiver))
+                .addAction(R.drawable.icon_stop, "Stop", AppMethods.makePendingIntent(this, ACTION_STOP, recording_receiver))
+                .addAction(R.drawable.icon_delete, "Delete", AppMethods.makePendingIntent(this, ACTION_DELETE, recording_receiver))
+                .setStyle(new androidx.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(0,1,2))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setOnlyAlertOnce(true)
+                .setOngoing(true);
+
+        recording_notification_manager.notify(NotificationIds.getRecordingNotificationId(), notification_builder.build());
+    }
+
 
     @Override
     protected void onDestroy() {
@@ -273,5 +251,4 @@ public class RecorderActivity extends BaseActivity {
 
         deleteRecording();
     }
-
 }
