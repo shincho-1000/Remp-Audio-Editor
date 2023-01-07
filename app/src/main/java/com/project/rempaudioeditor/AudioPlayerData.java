@@ -10,10 +10,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.project.rempaudioeditor.utils.FileConverter;
-import com.project.rempaudioeditor.infos.AudioInfo;
 import com.project.rempaudioeditor.customviews.FftAudioVisualizer;
 import com.project.rempaudioeditor.customviews.WaveformSeekbar;
+import com.project.rempaudioeditor.infos.AudioInfo;
+import com.project.rempaudioeditor.utils.FileConverter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,7 +31,6 @@ public class AudioPlayerData {
     private int current_audio_track_index = 0;
     private int current_track_start = 0;
     private int current_track_end = 0;
-    private OnPlayerInitializedListener player_initialized_listener;
 
     private AudioPlayerData() {
 
@@ -52,17 +51,16 @@ public class AudioPlayerData {
         this.fft_audio_visualizer_view = fft_audio_visualizer_view;
 
         seekbar.connectMediaPlayer(context, current_duration_edit_view, total_duration_edit_view);
-
-        seekbar.setWaveFormCreatedListener(() -> {
-            if (player_initialized_listener != null) {
-                player_initialized_listener.playerInitialized();
-            }
-        });
     }
 
     public void addTrack(AudioInfo newTrack) {
         audio_tracks.add(newTrack);
     }
+
+    public void removeTrack(int index) {
+        audio_tracks.remove(index);
+    }
+
 
     public void setCurrentAudioTrackIndex(int current_audio_track_index) {
         this.current_audio_track_index = current_audio_track_index;
@@ -136,12 +134,12 @@ public class AudioPlayerData {
                 if (current_audio_track_index < audio_tracks.size()) {
                     startPlayer(app_context);
                 } else {
-                    endPlayer();
+                    releasePlayer();
                     current_audio_track_index = 0;
                 }
             });
         } else {
-            endPlayer();
+            releasePlayer();
             startPlayer(app_context);
         }
     }
@@ -157,17 +155,17 @@ public class AudioPlayerData {
     }
 
     public void endPlayer() {
-        if (!released) {
-            releaseVisualizer();
-            releasePlayer();
-            released = true;
-            audio_tracks.clear();
-        }
+        releasePlayer();
+        audio_tracks.clear();
     }
 
     public void releasePlayer() {
-        audio_player.release();
-        audio_player = null;
+        if (!released) {
+            releaseVisualizer();
+            audio_player.release();
+            audio_player = null;
+            released = true;
+        }
     }
 
     public void releaseVisualizer() {
@@ -211,13 +209,5 @@ public class AudioPlayerData {
 
     public ArrayList<AudioInfo> getTrackList() {
         return audio_tracks;
-    }
-
-    public void setPlayerInitializedListener(OnPlayerInitializedListener event_listener) {
-        player_initialized_listener = event_listener;
-    }
-
-    public interface OnPlayerInitializedListener {
-        void playerInitialized();
     }
 }

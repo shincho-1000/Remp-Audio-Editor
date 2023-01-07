@@ -5,5 +5,6 @@ public enum EditorTrayId {
     TRIM,
     SPLIT,
     MUTE,
-    RECORD
+    RECORD,
+    DELETE
 }

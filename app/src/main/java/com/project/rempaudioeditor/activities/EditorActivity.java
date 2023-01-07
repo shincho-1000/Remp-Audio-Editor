@@ -24,8 +24,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.rempaudioeditor.R;
 import com.project.rempaudioeditor.AudioPlayerData;
 import com.project.rempaudioeditor.AppMethods;
-import com.project.rempaudioeditor.AudioRecorderData;
 import com.project.rempaudioeditor.constants.AppConstants;
+import com.project.rempaudioeditor.enums.EditorTrayId;
 import com.project.rempaudioeditor.infos.AudioInfo;
 import com.project.rempaudioeditor.recycleradapters.EditorTrayItemAdapter;
 import com.project.rempaudioeditor.dispatch.DispatchMethods;
@@ -48,9 +48,19 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
     ActivityResultLauncher<String> select_audio_file = registerForActivityResult(new ActivityResultContracts.GetContent(),
             uri -> {
                 if (uri != null) {
-                    AudioInfo newTrack = new AudioInfo(this, uri);
-                    AudioPlayerData.getInstance().addTrack(newTrack);
-                    seekbar.addWaveform(newTrack);
+                    AudioInfo new_audio = new AudioInfo(this, uri);
+                    AudioPlayerData audio_player_data = AudioPlayerData.getInstance();
+                    audio_player_data.addTrack(new_audio);
+
+                    new Handler().postDelayed(() -> {
+                        PopupWindow loading_popup_window = DispatchMethods.sendPopup(loading_popup, new Fade(), false);
+                        seekbar.setWaveFormAddedListener(() -> runOnUiThread(loading_popup_window::dismiss));
+                    }, AppConstants.getPopupSendDelayMilisec());
+
+                    Thread waveform_generation = new Thread(() -> {
+                        seekbar.addWaveform(new_audio);
+                    });
+                    waveform_generation.start();
                 }
             });
 
@@ -90,14 +100,14 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
         final ImageButton back_btn = findViewById(R.id.back_from_editor_btn);
         back_btn.setOnClickListener(view -> AppMethods.finishActivity(this));
 
-        AudioPlayerData.getInstance().initializePlayer(this, findViewById(R.id.editor_fft_visualizer), findViewById(R.id.editor_waveform_seeker), findViewById(R.id.durationText), findViewById(R.id.totalDurationText));
-        // TODO: window leak here
         new Handler().postDelayed(() -> {
             PopupWindow loading_popup_window = DispatchMethods.sendPopup(loading_popup, new Fade(), false);
-            AudioPlayerData.getInstance().setPlayerInitializedListener(() -> {
+            seekbar.setWaveFormsInitializedListener(() -> {
                 runOnUiThread(loading_popup_window::dismiss);
             });
         }, AppConstants.getPopupSendDelayMilisec());
+
+        AudioPlayerData.getInstance().initializePlayer(this, findViewById(R.id.editor_fft_visualizer), findViewById(R.id.editor_waveform_seeker), findViewById(R.id.durationText), findViewById(R.id.totalDurationText));
     }
 
     // Button actions
@@ -161,6 +171,17 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
 
     @Override
     public void onEditorTrayItemClick(int position) {
+        EditorTrayItemInfo item = RecyclerViewItems.getEditorTrayItemList().get(position);
+        EditorTrayId editor_tray_id = item.getId();
 
+        switch (editor_tray_id) {
+            case DELETE:
+                int selected_waveform_index = seekbar.getSelectedViewIndex();
+                if (selected_waveform_index >= 0) {
+                    AudioPlayerData.getInstance().removeTrack(selected_waveform_index);
+                    seekbar.removeWaveform(selected_waveform_index);
+                }
+                break;
+        }
     }
 }

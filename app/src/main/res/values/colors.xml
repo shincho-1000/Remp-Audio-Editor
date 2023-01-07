@@ -5,8 +5,9 @@
     <color name="primary_color_800">#283593</color>
     <color name="primary_color_700">#303F9F</color>
     <color name="primary_color_600">#3949AB</color>
-    <color name="primary_color_500">#3F51B5</color>
+    <color name="primary_color_500">#3D53CA</color>
     <color name="primary_color_400">#3F51B5</color>
+    <color name="primary_color_350">#4050A6</color>
     <color name="primary_color_300">#7986CB</color>
     <color name="primary_color_200">#9FA8DA</color>
     <color name="primary_color_100">#C5CAE9</color>

@@ -2,8 +2,8 @@
     <!-- Base application theme -->
     <style name="Theme.RempAudioEditor" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary and secondary colors -->
-        <item name="colorPrimary">@color/primary_color_400</item>
-        <item name="colorPrimaryVariant">@color/primary_color_800</item>
+        <item name="colorPrimary">@color/primary_color_350</item>
+        <item name="colorPrimaryVariant">@color/primary_color_700</item>
         <item name="colorOnPrimary">@color/white</item>
 
         <item name="colorSecondary">@color/secondary_color_400</item>
@@ -22,6 +22,7 @@
         <item name="dividerColor">@color/dark_grey</item>
         <item name="imageIconColor">@color/icon_black</item>
         <item name="controlColor">@color/pale_white</item>
+        <item name="seekbarSelectedBorderColor">@color/dark_grey</item>
 
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowTranslucentNavigation">true</item>

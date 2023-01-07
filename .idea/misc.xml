@@ -35,6 +35,7 @@
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable/icon_arrow_back.xml" value="0.2075" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable/icon_audio.xml" value="0.2075" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable/icon_delete.xml" value="0.204" />
+        <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable/icon_delete_editor.xml" value="0.2075" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable/icon_export.xml" value="0.2075" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable/icon_folder.xml" value="0.2075" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable/icon_mic.xml" value="0.2075" />
@@ -55,7 +56,7 @@
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable/selector_radio_btn.xml" value="0.2065" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable/settings.xml" value="0.2075" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/drawable/textlogo.xml" value="0.2075" />
-        <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/layout/activity_editor.xml" value="0.18" />
+        <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/layout/activity_editor.xml" value="0.33" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/layout/activity_main.xml" value="0.2" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/layout/activity_recorder.xml" value="0.2" />
         <entry key="..\:/Users/Admin/AndroidStudioProjects/RempAudioEditor/app/src/main/res/layout/activity_settings.xml" value="0.22" />

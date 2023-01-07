@@ -21,12 +21,12 @@ public class UnitConverter {
         if (hours < 10)
             formattedDuration += "0";
 
-        formattedDuration += hours + " : ";
+        formattedDuration += hours + ":";
 
         if (minutes < 10)
             formattedDuration += "0";
 
-        formattedDuration += minutes + " : ";
+        formattedDuration += minutes + ":";
 
         if (seconds < 10)
             formattedDuration += "0";

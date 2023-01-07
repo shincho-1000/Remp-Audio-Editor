@@ -10,6 +10,7 @@
     <attr name="imageIconColor" format="reference" />
     <attr name="errorColor" format="reference" />
     <attr name="controlColor" format="reference" />
+    <attr name="seekbarSelectedBorderColor" format="reference" />
 
     <!-- Custom components -->
     <declare-styleable name="RecorderVisualizerScroller">
