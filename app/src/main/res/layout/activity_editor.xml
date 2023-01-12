@@ -71,7 +71,7 @@
         android:id="@+id/editor_fft_visualizer"
         android:layout_width="300dp"
         android:layout_height="300dp"
-        app:fftViewBarColor="?attr/colorSecondary"
+        app:fftViewBarColor="?attr/colorPrimary"
         android:layout_marginTop="42dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"

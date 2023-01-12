@@ -7,6 +7,7 @@
     tools:context="com.project.rempaudioeditor.activities.MainActivity">
 
     <RelativeLayout
+        android:id="@+id/relativeLayout"
         style="@style/HeaderStyle"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

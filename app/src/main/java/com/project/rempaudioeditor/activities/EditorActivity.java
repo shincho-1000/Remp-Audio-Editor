@@ -3,6 +3,7 @@ package com.project.rempaudioeditor.activities;
 import android.content.Context;
 import android.graphics.Rect;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.transition.Fade;
@@ -14,10 +15,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,7 +36,10 @@ import com.project.rempaudioeditor.dispatch.DispatchMethods;
 import com.project.rempaudioeditor.infos.EditorTrayItemInfo;
 import com.project.rempaudioeditor.constants.RecyclerViewItems;
 import com.project.rempaudioeditor.customviews.WaveformSeekbar;
+import com.project.rempaudioeditor.utils.FileConverter;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class EditorActivity extends BaseActivity implements EditorTrayItemAdapter.EditorTrayItemClickListener {
@@ -61,6 +68,51 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
                         seekbar.addWaveform(new_audio);
                     });
                     waveform_generation.start();
+                }
+            });
+
+    ActivityResultLauncher<String> extract_audio_from_video = registerForActivityResult(new ActivityResultContracts.GetContent(),
+            uri -> {
+                if (uri != null) {
+                    LinearLayout storage_dialog_layout = (LinearLayout) getLayoutInflater().inflate(R.layout.dialog_content_save_file, null);
+
+                    AlertDialog.Builder storage_dialog_builder = DispatchMethods
+                            .createDialog(this, getString(R.string.dialog_header_video_extraction_rec), storage_dialog_layout);
+
+                    storage_dialog_builder.setPositiveButton(R.string.button_confirm, (dialog, id) -> {
+                        EditText file_name_view = storage_dialog_layout.findViewById(R.id.file_name_text);
+                        String destination_file_name = file_name_view.getText().toString();
+
+                        if (!destination_file_name.isEmpty()) {
+                            File directory = new File(AppConstants.getCurrentAudioStorageDir());
+                            if (directory.exists()) {
+                                File destination_file = new File(directory, destination_file_name);
+                                Toast.makeText(this, "File saved successfully!", Toast.LENGTH_SHORT).show();
+                                try {
+                                    // TODO: add a loader dialog here
+                                    FileConverter.extractAudioFromVideo(this, uri, destination_file.getPath(), -1, -1);
+
+                                    AudioInfo new_audio = new AudioInfo(this, Uri.fromFile(destination_file));
+                                    AudioPlayerData audio_player_data = AudioPlayerData.getInstance();
+                                    audio_player_data.addTrack(new_audio);
+
+                                    new Handler().postDelayed(() -> {
+                                        PopupWindow loading_popup_window = DispatchMethods.sendPopup(loading_popup, new Fade(), false);
+                                        seekbar.setWaveFormAddedListener(() -> runOnUiThread(loading_popup_window::dismiss));
+                                    }, AppConstants.getPopupSendDelayMilisec());
+
+                                    Thread waveform_generation = new Thread(() -> {
+                                        seekbar.addWaveform(new_audio);
+                                    });
+                                    waveform_generation.start();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    });
+
+                    storage_dialog_builder.show().setCanceledOnTouchOutside(false);
                 }
             });
 
@@ -96,6 +148,7 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
         open_from_audio_file_btn.setOnClickListener(v -> openFromAudioFile());
 
         Button open_from_video_file_btn = add_audio_popup.findViewById(R.id.add_audio_from_video_btn);
+        open_from_video_file_btn.setOnClickListener(v -> openFromVideoFile());
 
         final ImageButton back_btn = findViewById(R.id.back_from_editor_btn);
         back_btn.setOnClickListener(view -> AppMethods.finishActivity(this));
@@ -139,16 +192,18 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
                 audio_player_data.pausePlayer();
                 play_audio_btn.setImageResource(R.drawable.icon_play);
             } else {
+                seekbar.seekPlayer();
                 audio_player_data.resumePlayer();
                 play_audio_btn.setImageResource(R.drawable.icon_pause);
             }
         } else {
             audio_player_data.startPlayer(this);
+            seekbar.seekPlayer();
+            audio_player_data.resumePlayer();
             play_audio_btn.setImageResource(R.drawable.icon_pause);
-
-            audio_player = audio_player_data.getPlayer();
-            audio_player.setOnCompletionListener(mp -> play_audio_btn.setImageResource(R.drawable.icon_play));
         }
+
+        AudioPlayerData.getInstance().setPlayerCompletionListener(() -> play_audio_btn.setImageResource(R.drawable.icon_play));
     }
 
     // Button actions
@@ -158,6 +213,10 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
 
     private void openFromAudioFile() {
         select_audio_file.launch("audio/*");
+    }
+
+    private void openFromVideoFile() {
+        extract_audio_from_video.launch("video/*");
     }
 
     @Override

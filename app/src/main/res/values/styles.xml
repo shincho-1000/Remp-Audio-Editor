@@ -55,4 +55,11 @@
         <item name="android:clickable">true</item>
         <item name="android:padding">10dp</item>
     </style>
+
+    <style name="ColorButtonStyle">
+        <item name="android:layout_margin">10dp</item>
+        <item name="android:layout_height">60dp</item>
+        <item name="android:layout_width">60dp</item>
+        <item name="android:foreground">@drawable/background_color_controls</item>
+    </style>
 </resources>

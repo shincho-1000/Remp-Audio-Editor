@@ -21,6 +21,8 @@ public class LauncherActivity extends BaseActivity {
 
         AppSettings settings = AppSettings.getInstance();
 
+        settings.setWallpaperDominantColor(this);
+
         switch (settings.getThemeId()) {
             case LIGHT:
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);

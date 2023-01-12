@@ -1,5 +1,6 @@
 package com.project.rempaudioeditor.customviews;
 
+// TODO: recorder and extractor audio are producing smaller waveforms
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -17,7 +18,6 @@ import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -127,7 +127,7 @@ public class WaveformSeekbar extends HorizontalScrollView {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     if ((audio_player_data.getPlayer() != null) && (!audio_player_data.getReleased())) {
                         int edit_text_position = (int) UnitConverter
-                                .formattedTimeToMilisec(view.getText().toString());
+                                .toMilisec(view.getText().toString());
                         if ((edit_text_position < audio_player_data.getCurrentAudioTrackStart())
                                 || (edit_text_position > audio_player_data.getCurrentAudioTrackEnd())) {
                             int audio_duration = 0;
@@ -171,7 +171,7 @@ public class WaveformSeekbar extends HorizontalScrollView {
 
     private void setTotalDuration(@NonNull TextView total_duration_view) {
         total_duration = audio_player_data.getPlayerTotalDuration();
-        total_duration_view.setText(UnitConverter.formatToMilisec(total_duration));
+        total_duration_view.setText(UnitConverter.format(total_duration));
     }
 
     public void addWaveform(AudioInfo audioTrack) {
@@ -231,11 +231,14 @@ public class WaveformSeekbar extends HorizontalScrollView {
 
     private void updateWaveformSeekbar() {
         if ((!audio_player_data.getReleased()) && (audio_player_data.getPlayer().isPlaying())) {
-            if (current_position_view != null && !current_position_view.hasFocus()) {
-                current_position_view.setText(UnitConverter
-                        .formatToMilisec((audio_player_data.getPlayer().getCurrentPosition() + audio_player_data.getCurrentAudioTrackStart())));
-            }
             setWaveformProgress(audio_player_data.getPlayer().getCurrentPosition());
+        }
+
+        if (current_position_view != null && !current_position_view.hasFocus()) {
+            double progress_ratio = (double) getScrollX() / getChildAt(0).getWidth();
+            double absolute_progress = progress_ratio * total_duration;
+            current_position_view.setText(UnitConverter
+                    .format((long) absolute_progress));
         }
 
         seekHandler.postDelayed(waveform_updater, 50);
@@ -248,7 +251,7 @@ public class WaveformSeekbar extends HorizontalScrollView {
         }
     }
 
-    private void seekPlayer() {
+    public void seekPlayer() {
         double progress_ratio = (double) getScrollX() / getChildAt(0).getWidth();
         double absolute_progress = progress_ratio * total_duration;
 
@@ -262,6 +265,7 @@ public class WaveformSeekbar extends HorizontalScrollView {
                     audio_player_data.setCurrentAudioTrackIndex(i);
                     audio_player_data.getPlayer().reset();
                     audio_player_data.startPlayer(getContext().getApplicationContext());
+                    audio_player_data.pausePlayer();
                     if (audio_player_data.getPlayer() != null)
                         audio_player_data.getPlayer().seekTo((int) ((absolute_progress) - audio_player_data.getCurrentAudioTrackStart()));
                     break;
@@ -272,13 +276,25 @@ public class WaveformSeekbar extends HorizontalScrollView {
         }
 
         if (current_position_view != null && !current_position_view.hasFocus()) {
-            current_position_view.setText(UnitConverter.formatToMilisec((int) (absolute_progress)));
+            current_position_view.setText(UnitConverter.format((int) (absolute_progress)));
         }
     }
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+        handleTouchEvent(ev);
+        return super.onInterceptTouchEvent(ev);
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        handleTouchEvent(ev);
+        return super.onTouchEvent(ev);
+    }
+
+    public void handleTouchEvent(MotionEvent ev) {
         if (audio_player_data != null) {
             switch (ev.getAction()) {
                 case MotionEvent.ACTION_DOWN:
@@ -287,22 +303,13 @@ public class WaveformSeekbar extends HorizontalScrollView {
                         holdListener.onHold();
                     }
                     break;
-                case MotionEvent.ACTION_UP:
-                    if ((!audio_player_data.getReleased()) && (!audio_player_data.getPlayer().isPlaying())) {
-                        seekPlayer();
-                    }
-                    break;
             }
         }
-        return super.onInterceptTouchEvent(ev);
     }
 
     @Override
     public void fling(int velocityX) {
         super.fling(velocityX);
-
-        if ((!audio_player_data.getReleased()) && (audio_player_data.getPlayer().isPlaying()))
-            audio_player_data.pausePlayer();
 
         checkFling();
     }
@@ -310,9 +317,7 @@ public class WaveformSeekbar extends HorizontalScrollView {
     private void checkFling() {
         int current_position = getScrollX();
         if (fling_previous_position - current_position == 0) {
-            if ((!audio_player_data.getReleased()) && (!audio_player_data.getPlayer().isPlaying())) {
-                seekPlayer();
-            }
+
         } else {
             fling_previous_position = getScrollX();
             postDelayed(fling_checker, 50);

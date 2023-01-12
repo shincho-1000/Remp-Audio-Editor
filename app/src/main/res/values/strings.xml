@@ -22,6 +22,8 @@
     <string name="button_cancel">Cancel</string>
     <string name="loading">Loading…</string>
     <string name="importing">Importing…</string>
+    <string name="choose_accent_color">Choose Accent Color</string>
+    <string name="pick_from_wallpaper">Pick From Wallpaper</string>
 
     <!-- Images and buttons descriptions-->
     <string name="textlogo_desc">Remp Audio Editor</string>

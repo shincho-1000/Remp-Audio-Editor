@@ -1,14 +1,10 @@
 <resources>
     <!-- Base application theme -->
     <style name="Theme.RempAudioEditor" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Primary and secondary colors -->
-        <item name="colorPrimary">@color/primary_color_400</item>
-        <item name="colorPrimaryVariant">@color/primary_color_300</item>
+        <!-- Primary colors -->
+        <item name="colorPrimary">@color/blue_primary_color_400</item>
+        <item name="colorPrimaryVariant">@color/blue_primary_color_300</item>
         <item name="colorOnPrimary">@color/white</item>
-
-        <item name="colorSecondary">@color/secondary_color_400</item>
-        <item name="colorSecondaryVariant">@color/secondary_color_700</item>
-        <item name="colorOnSecondary">@color/black</item>
 
         <item name="errorColor">@color/dark_error</item>
 
@@ -29,7 +25,43 @@
         <item name="android:fitsSystemWindows">true</item>
 
         <!-- Visualizer Colors -->
-        <item name="recorderVisualizerBarColor">?attr/colorSecondary</item>
+        <item name="recorderVisualizerBarColor">?attr/colorPrimary</item>
+    </style>
+
+
+
+    <style name="Theme.RempAudioEditor.Blue">
+        <item name="colorPrimary">@color/blue_primary_color_400</item>
+        <item name="colorPrimaryVariant">@color/blue_primary_color_300</item>
+    </style>
+
+    <style name="Theme.RempAudioEditor.Red">
+        <item name="colorPrimary">@color/red_primary_color_400</item>
+        <item name="colorPrimaryVariant">@color/red_primary_color_300</item>
+    </style>
+
+
+    <style name="Theme.RempAudioEditor.Green">
+        <item name="colorPrimary">@color/green_primary_color_500</item>
+        <item name="colorPrimaryVariant">@color/green_primary_color_400</item>
+    </style>
+
+
+    <style name="Theme.RempAudioEditor.Pink">
+        <item name="colorPrimary">@color/pink_primary_color_400</item>
+        <item name="colorPrimaryVariant">@color/pink_primary_color_300</item>
+    </style>
+
+
+    <style name="Theme.RempAudioEditor.Yellow">
+        <item name="colorPrimary">@color/yellow_primary_color_400</item>
+        <item name="colorPrimaryVariant">@color/yellow_primary_color_300</item>
+    </style>
+
+
+    <style name="Theme.RempAudioEditor.Cyan">
+        <item name="colorPrimary">@color/cyan_primary_color_400</item>
+        <item name="colorPrimaryVariant">@color/cyan_primary_color_300</item>
     </style>
 
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">

@@ -32,7 +32,6 @@ public class AppMethods {
                                     @NonNull Class<?> activity_class) {
         Intent activity_intent = new Intent(context, activity_class);
         context.startActivity(activity_intent);
-
     }
 
     public static void finishActivity(@NonNull Activity activity) {

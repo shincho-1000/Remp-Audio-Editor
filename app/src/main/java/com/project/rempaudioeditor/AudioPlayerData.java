@@ -4,6 +4,7 @@ import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.media.audiofx.Visualizer;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -31,6 +32,8 @@ public class AudioPlayerData {
     private int current_audio_track_index = 0;
     private int current_track_start = 0;
     private int current_track_end = 0;
+
+    private OnPlayerCompletionListener player_completed_listener;
 
     private AudioPlayerData() {
 
@@ -136,6 +139,8 @@ public class AudioPlayerData {
                 } else {
                     releasePlayer();
                     current_audio_track_index = 0;
+                    if (player_completed_listener != null)
+                        player_completed_listener.playerCompleted();
                 }
             });
         } else {
@@ -209,5 +214,14 @@ public class AudioPlayerData {
 
     public ArrayList<AudioInfo> getTrackList() {
         return audio_tracks;
+    }
+
+
+    public void setPlayerCompletionListener(@NonNull OnPlayerCompletionListener event_listener) {
+        player_completed_listener = event_listener;
+    }
+
+    public interface OnPlayerCompletionListener {
+        void playerCompleted();
     }
 }

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -25,7 +24,7 @@ public class WaveForm extends View {
 
     public final double BAR_WIDTH = UnitConverter.convertDpToPx(getContext(), 1.5);
     public final double BAR_DISTANCE = UnitConverter.convertDpToPx(getContext(), 1.2);
-    public final double PADDING = UnitConverter.convertDpToPx(getContext(), 12);
+    public final double PADDING = UnitConverter.convertDpToPx(getContext(), 8);
 
     public WaveForm(Context context) {
         super(context);
@@ -64,7 +63,7 @@ public class WaveForm extends View {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         }
         else {
-            width = (int) (no_of_bars * (BAR_WIDTH + BAR_DISTANCE) - BAR_DISTANCE  + PADDING * 2);
+            width = (int) (no_of_bars * (BAR_WIDTH + BAR_DISTANCE) - BAR_DISTANCE);
             super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), heightMeasureSpec);
         }
         height = getMeasuredHeight();
@@ -83,12 +82,13 @@ public class WaveForm extends View {
         for (int i = 0; i < values.size(); i++) {
             float max_height = (float) (height - (PADDING * 2));
             float bar_height = (float) (max_height * values.get(i) / Math.pow(32767, 0.7));
-            float left = (float) (barNum * (BAR_WIDTH + BAR_DISTANCE) + PADDING);
+            float left = (float) (barNum * (BAR_WIDTH + BAR_DISTANCE));
             float top = (height - bar_height)/2;
             float right = (float) (left + BAR_WIDTH);
             float bottom = top + bar_height;
 
-            canvas.drawRect(left, top, right, bottom, bar_paint);
+            if (((left > PADDING) && (right > PADDING)) && ((left < (width - PADDING)) && (right < (width - PADDING))))
+                canvas.drawRect(left, top, right, bottom, bar_paint);
             barNum++;
         }
     }

@@ -38,7 +38,7 @@ public class DispatchMethods {
         WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         WindowManager.LayoutParams layoutParams = (WindowManager.LayoutParams) container.getLayoutParams();
         layoutParams.flags |= WindowManager.LayoutParams.FLAG_DIM_BEHIND;
-        layoutParams.dimAmount = 0.3f;
+        layoutParams.dimAmount = 0.5f;
         windowManager.updateViewLayout(container, layoutParams);
 
         return popup_window;

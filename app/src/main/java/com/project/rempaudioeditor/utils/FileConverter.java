@@ -8,6 +8,7 @@ import android.media.MediaMetadataRetriever;
 import android.media.MediaMuxer;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -100,7 +101,9 @@ public class FileConverter {
                 if (outputBufferIndex >= 0)
                 {
                     ByteBuffer outputBuffer = mediaCodec.getOutputBuffer(outputBufferIndex); // PCM 16-bit output
-                    int outputFrameRate = mediaCodec.getOutputFormat(outputBufferIndex).getInteger(MediaFormat.KEY_SAMPLE_RATE);
+                    int samples_per_sec = mediaCodec.getOutputFormat(outputBufferIndex).getInteger(MediaFormat.KEY_SAMPLE_RATE);
+                    int no_of_channels = mediaCodec.getOutputFormat(outputBufferIndex).getInteger(MediaFormat.KEY_CHANNEL_COUNT);
+                    int outputFrameRate = (samples_per_sec * no_of_channels);
                     outputBuffer.position(0);
                     // !!! Sub-sample the buffer based upon your needed sampling rate for display
                     ShortBuffer pcm16bitBuffer = outputBuffer.asShortBuffer();
@@ -123,7 +126,6 @@ public class FileConverter {
                             sample_count++;
                         }
                         index++;
-                        // store the prior values and avg./max/... them for later display based upon some subsampling rate
                     }
                     pcm16bitBuffer.clear();
                     mediaCodec.releaseOutputBuffer(outputBufferIndex, false);
