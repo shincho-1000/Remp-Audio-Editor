@@ -69,10 +69,10 @@
 
     <com.project.rempaudioeditor.customviews.FftAudioVisualizer
         android:id="@+id/editor_fft_visualizer"
+        android:layout_marginTop="15dp"
         android:layout_width="300dp"
         android:layout_height="300dp"
         app:fftViewBarColor="?attr/colorPrimary"
-        android:layout_marginTop="42dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
@@ -127,23 +127,24 @@
     <com.project.rempaudioeditor.customviews.WaveformSeekbar
         android:id="@+id/editor_waveform_seeker"
         android:layout_width="match_parent"
-        android:layout_height="45dp"
+        android:layout_height="160dp"
+        android:layout_marginBottom="5dp"
         android:fillViewport="true"
         app:durationView="@id/durationText"
         app:layout_constraintBottom_toTopOf="@+id/editor_tray"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
-        app:layout_constraintVertical_bias="0.315"
         app:pinColor="@color/light_error"
         app:waveBackground="@drawable/background_editor_seeker"
-        app:waveBarColor="?attr/colorOnPrimary" />
+        app:waveBarColor="?attr/colorOnPrimary"
+        android:overScrollMode="never" />
 
     <ImageView
         android:id="@+id/play_audio_btn"
+        android:layout_marginTop="15dp"
         style="@style/ControlButtonStyle"
-        android:layout_marginTop="8dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"

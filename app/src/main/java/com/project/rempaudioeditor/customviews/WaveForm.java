@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 
 public class WaveForm extends View {
     private ArrayList<Double> values;
+    private ArrayList<Double> distributed_values;
 
     private int width;
     private int height;
@@ -24,7 +26,8 @@ public class WaveForm extends View {
 
     public final double BAR_WIDTH = UnitConverter.convertDpToPx(getContext(), 1.5);
     public final double BAR_DISTANCE = UnitConverter.convertDpToPx(getContext(), 1.2);
-    public final double PADDING = UnitConverter.convertDpToPx(getContext(), 8);
+    public final double PADDING = UnitConverter.convertDpToPx(getContext(), 6);
+    private float scaleFactor = 1.f;
 
     public WaveForm(Context context) {
         super(context);
@@ -51,9 +54,18 @@ public class WaveForm extends View {
 
     public void setBars(ArrayList<Double> values) {
         this.values = values;
-        this.no_of_bars = values.size();
+        distributed_values = values;
         requestLayout();
         postInvalidate();
+    }
+
+    public void setScaleFactor(float scaleFactor) {
+        this.scaleFactor = scaleFactor;
+
+
+        if (values != null && !values.isEmpty()) {
+            distributed_values = distribute(values, (int) (scaleFactor * values.size()));
+        }
     }
 
     @Override
@@ -63,7 +75,7 @@ public class WaveForm extends View {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         }
         else {
-            width = (int) (no_of_bars * (BAR_WIDTH + BAR_DISTANCE) - BAR_DISTANCE);
+            width = (int) ((distributed_values.size() * (BAR_WIDTH + BAR_DISTANCE) - BAR_DISTANCE));
             super.onMeasure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY), heightMeasureSpec);
         }
         height = getMeasuredHeight();
@@ -77,19 +89,29 @@ public class WaveForm extends View {
             return;
         }
 
-        int barNum = 0;
-
-        for (int i = 0; i < values.size(); i++) {
+        for (int i = 0; i < distributed_values.size(); i++) {
             float max_height = (float) (height - (PADDING * 2));
-            float bar_height = (float) (max_height * values.get(i) / Math.pow(32767, 0.7));
-            float left = (float) (barNum * (BAR_WIDTH + BAR_DISTANCE));
-            float top = (height - bar_height)/2;
+            float bar_height = (float) (max_height * distributed_values.get(i) / Math.pow(32767, 0.7));
+            float left = (float) (i * (BAR_WIDTH + BAR_DISTANCE));
+            float top = (height - bar_height) / 2;
             float right = (float) (left + BAR_WIDTH);
             float bottom = top + bar_height;
 
             if (((left > PADDING) && (right > PADDING)) && ((left < (width - PADDING)) && (right < (width - PADDING))))
                 canvas.drawRect(left, top, right, bottom, bar_paint);
-            barNum++;
         }
+    }
+
+    private static ArrayList<Double> distribute(ArrayList<Double> a, int n) {
+        if (n < 1) {
+            return new ArrayList<>();
+        }
+        ArrayList<Double> elements = new ArrayList<>();
+        int totalItems = a.size();
+        double interval = ((double) totalItems) / ((double) n);
+        for (int i = 0; i < n; i++) {
+            elements.add(a.get((int) Math.round(i * interval)));
+        }
+        return elements;
     }
 }

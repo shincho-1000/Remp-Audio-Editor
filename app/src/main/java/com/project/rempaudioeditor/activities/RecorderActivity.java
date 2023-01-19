@@ -201,7 +201,7 @@ public class RecorderActivity extends BaseActivity {
                                 AudioInfo new_audio = new AudioInfo(this, Uri.fromFile(destination_file));
                                 AppMethods.openActivity(this, EditorActivity.class);
                                 AppMethods.finishActivity(this);
-                                AudioPlayerData.getInstance().addTrack(new_audio);
+                                AudioPlayerData.getInstance().addTrack(0, new_audio);
                             }
                         }
                     }

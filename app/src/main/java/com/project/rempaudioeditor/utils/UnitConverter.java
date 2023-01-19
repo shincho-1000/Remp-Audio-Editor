@@ -11,10 +11,10 @@ public class UnitConverter {
     }
 
     public static String format(long milisec_to_convert){
-        long sec_to_convert = milisec_to_convert/1000;
-        long hours = (sec_to_convert % 86400) / 3600;
-        long minutes = (sec_to_convert % 3600) / 60;
-        long seconds = sec_to_convert % 60;
+        double sec_to_convert = milisec_to_convert/1000f;
+        long hours = (long) ((sec_to_convert % 86400) / 3600);
+        long minutes = (long) ((sec_to_convert % 3600) / 60);
+        long seconds = Math.round(sec_to_convert % 60);
 
         String formattedDuration = "";
 

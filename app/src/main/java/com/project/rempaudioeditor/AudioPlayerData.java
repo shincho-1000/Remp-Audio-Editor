@@ -1,10 +1,8 @@
 package com.project.rempaudioeditor;
 
 import android.content.Context;
-import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.media.audiofx.Visualizer;
-import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -14,26 +12,22 @@ import androidx.annotation.Nullable;
 import com.project.rempaudioeditor.customviews.FftAudioVisualizer;
 import com.project.rempaudioeditor.customviews.WaveformSeekbar;
 import com.project.rempaudioeditor.infos.AudioInfo;
+import com.project.rempaudioeditor.infos.ChannelInfo;
 import com.project.rempaudioeditor.utils.FileConverter;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class AudioPlayerData {
     private static AudioPlayerData single_instance = null;
 
-    private MediaPlayer audio_player;
     private FftAudioVisualizer fft_audio_visualizer_view;
     private Visualizer visualizer;
 
-    private boolean released = true;
+    private int audio_session_id = -1;
+    private boolean initialized = false;
+    private int longest_channel_index;
 
-    private final ArrayList<AudioInfo> audio_tracks = new ArrayList<>();
-    private int current_audio_track_index = 0;
-    private int current_track_start = 0;
-    private int current_track_end = 0;
-
-    private OnPlayerCompletionListener player_completed_listener;
+    private final ArrayList<ChannelInfo> audio_channels = new ArrayList<>();
 
     private AudioPlayerData() {
 
@@ -56,34 +50,19 @@ public class AudioPlayerData {
         seekbar.connectMediaPlayer(context, current_duration_edit_view, total_duration_edit_view);
     }
 
-    public void addTrack(AudioInfo newTrack) {
-        audio_tracks.add(newTrack);
-    }
-
-    public void removeTrack(int index) {
-        audio_tracks.remove(index);
-    }
-
-
-    public void setCurrentAudioTrackIndex(int current_audio_track_index) {
-        this.current_audio_track_index = current_audio_track_index;
-    }
-
-    public void updateCurrentAudioTrackStartAndEnd() {
-        current_track_start = 0;
-        current_track_end = 0;
-        for (int i = 0; i <= getCurrentAudioTrackIndex(); i++) {
-            AudioInfo currentTrackInfo = audio_tracks.get(i);
-            current_track_end += currentTrackInfo.getUriDuration();
-            if (i > 0) {
-                AudioInfo previousTrackInfo = audio_tracks.get(i-1);
-                current_track_start += previousTrackInfo.getUriDuration();
-            }
+    public void addTrack(int channel_index, AudioInfo newTrack) {
+        if (audio_channels.size() <= channel_index) {
+            audio_channels.add(channel_index, new ChannelInfo());
         }
+        audio_channels.get(channel_index).addTrack(newTrack);
+    }
+
+    public void removeTrack(int channel_index, int track_index) {
+        audio_channels.get(channel_index).removeTrack(track_index);
     }
 
     public void initializeCircleVisualizer() {
-        visualizer = new Visualizer(audio_player.getAudioSessionId());
+        visualizer = new Visualizer(audio_session_id);
         visualizer.setCaptureSize(Visualizer.getCaptureSizeRange()[0]);
         visualizer.setScalingMode(Visualizer.SCALING_MODE_NORMALIZED);
         visualizer.setMeasurementMode(Visualizer.MEASUREMENT_MODE_PEAK_RMS);
@@ -102,126 +81,80 @@ public class AudioPlayerData {
         visualizer.setEnabled(true);
     }
 
-    public void startPlayer(@NonNull Context app_context) {
-        if (audio_tracks.size() == 0)
-            return;
+    public void startPlayers(@NonNull Context app_context) {
+        for (ChannelInfo channelInfo : audio_channels) {
+            channelInfo.startPlayer(app_context);
 
-        AudioInfo audioInfo = audio_tracks.get(current_audio_track_index);
+            audio_session_id = channelInfo.getPlayer().getAudioSessionId();
+        }
+        initializeCircleVisualizer();
+        initialized = true;
+    }
 
-        if (audioInfo.getUriFile() == null)
-            return;
+    public int getAudioSessionId() {
+        return audio_session_id;
+    }
 
-        if (getReleased()) {
-            try {
-                audio_player = new MediaPlayer();
-                audio_player.setDataSource(app_context, audioInfo.getUriFile());
-                audio_player.setAudioAttributes(new AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .build());
-                audio_player.prepare();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            updateCurrentAudioTrackStartAndEnd();
-
-            audio_player.start();
-
-            released = false;
-
-            initializeCircleVisualizer();
-
-            audio_player.setOnCompletionListener(mp -> {
-                current_audio_track_index++;
-                if (current_audio_track_index < audio_tracks.size()) {
-                    startPlayer(app_context);
-                } else {
-                    releasePlayer();
-                    current_audio_track_index = 0;
-                    if (player_completed_listener != null)
-                        player_completed_listener.playerCompleted();
-                }
-            });
-        } else {
-            releasePlayer();
-            startPlayer(app_context);
+    public void pausePlayers() {
+        for (ChannelInfo channelInfo : audio_channels) {
+            MediaPlayer audio_player = channelInfo.getPlayer();
+            if ((!channelInfo.getReleased()) && (audio_player.isPlaying()))
+                audio_player.pause();
         }
     }
 
-    public void pausePlayer() {
-        if ((!getReleased()) && (audio_player.isPlaying()))
-            audio_player.pause();
+    public void resumePlayers() {
+        for (ChannelInfo channelInfo : audio_channels) {
+            MediaPlayer audio_player = channelInfo.getPlayer();
+            if ((!channelInfo.getReleased()) && (!audio_player.isPlaying()))
+                audio_player.start();
+        }
     }
 
-    public void resumePlayer() {
-        if ((!getReleased()) && (!audio_player.isPlaying()))
-            audio_player.start();
+    public void endPlayers() {
+        for (ChannelInfo channelInfo : audio_channels) {
+            channelInfo.endPlayer();
+        }
+        releaseVisualizer();
+        initialized = false;
     }
 
-    public void endPlayer() {
-        releasePlayer();
-        audio_tracks.clear();
-    }
-
-    public void releasePlayer() {
-        if (!released) {
-            releaseVisualizer();
-            audio_player.release();
-            audio_player = null;
-            released = true;
+    public void releasePlayers() {
+        for (ChannelInfo channelInfo : audio_channels) {
+            channelInfo.releasePlayer();
         }
     }
 
     public void releaseVisualizer() {
-        visualizer.setEnabled(false);
-        visualizer.release();
-    }
-
-    public MediaPlayer getPlayer() {
-        return audio_player;
-    }
-
-    public boolean getReleased() {
-        if (audio_player == null) {
-            released = true;
+        if (initialized && visualizer != null) {
+            visualizer.setEnabled(false);
+            visualizer.release();
         }
-
-        return released;
     }
 
     public int getPlayerTotalDuration() {
         int player_total_duration = 0;
 
-        for (AudioInfo audio_track : audio_tracks) {
-            player_total_duration += audio_track.getUriDuration();
+        for (int i = 0; i < audio_channels.size(); i++) {
+            ChannelInfo channelInfo = audio_channels.get(i);
+            if (channelInfo.getPlayerTotalDuration() > player_total_duration) {
+                player_total_duration = channelInfo.getPlayerTotalDuration();
+                longest_channel_index = i;
+            }
         }
 
         return player_total_duration;
     }
 
-    public int getCurrentAudioTrackIndex() {
-        return current_audio_track_index;
+    public ArrayList<ChannelInfo> getChannelList() {
+        return audio_channels;
     }
 
-    public int getCurrentAudioTrackStart() {
-        return current_track_start;
+    public int getLongestChannelIndex() {
+        return longest_channel_index;
     }
 
-    public int getCurrentAudioTrackEnd() {
-        return current_track_end;
-    }
-
-    public ArrayList<AudioInfo> getTrackList() {
-        return audio_tracks;
-    }
-
-
-    public void setPlayerCompletionListener(@NonNull OnPlayerCompletionListener event_listener) {
-        player_completed_listener = event_listener;
-    }
-
-    public interface OnPlayerCompletionListener {
-        void playerCompleted();
+    public boolean isInitialized() {
+        return initialized;
     }
 }

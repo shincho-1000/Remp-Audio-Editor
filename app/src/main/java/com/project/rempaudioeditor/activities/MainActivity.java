@@ -1,7 +1,6 @@
 package com.project.rempaudioeditor.activities;
 
 import android.content.Intent;
-import android.media.audiofx.Equalizer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.transition.Fade;
@@ -11,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -18,7 +18,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 
 import com.example.rempaudioeditor.R;
-import com.google.android.material.color.DynamicColors;
 import com.project.rempaudioeditor.AppMethods;
 import com.project.rempaudioeditor.AppSettings;
 import com.project.rempaudioeditor.AudioPlayerData;
@@ -35,14 +34,16 @@ import java.io.IOException;
 public class MainActivity extends BaseActivity {
     private ColorId current_color;
     private View new_project_popup;
+    private PopupWindow new_project_popup_window;
 
     ActivityResultLauncher<String> select_audio_file = registerForActivityResult(new ActivityResultContracts.GetContent(),
             uri -> {
                 if (uri != null) {
                     AudioInfo new_audio = new AudioInfo(this, uri);
                     AudioPlayerData audio_player_data = AudioPlayerData.getInstance();
-                    audio_player_data.addTrack(new_audio);
+                    audio_player_data.addTrack(0, new_audio);
                     AppMethods.openActivity(MainActivity.this, EditorActivity.class);
+                    new_project_popup_window.dismiss();
                 }
             });
 
@@ -64,12 +65,12 @@ public class MainActivity extends BaseActivity {
                                 File destination_file = new File(directory, destination_file_name);
                                 Toast.makeText(this, "File saved successfully!", Toast.LENGTH_SHORT).show();
                                 try {
-                                    // TODO: add a loader dialog here
                                     FileConverter.extractAudioFromVideo(this, uri, destination_file.getPath(), -1, -1);
 
                                     AudioInfo new_audio = new AudioInfo(this, Uri.fromFile(destination_file));
-                                    AudioPlayerData.getInstance().addTrack(new_audio);
+                                    AudioPlayerData.getInstance().addTrack(0, new_audio);
                                     AppMethods.openActivity(this, EditorActivity.class);
+                                    new_project_popup_window.dismiss();
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -98,7 +99,7 @@ public class MainActivity extends BaseActivity {
         new_project_btn.setOnClickListener(view -> createNewProject());
 
         Button record_new_audio_btn = new_project_popup.findViewById(R.id.new_project_recording_btn);
-        record_new_audio_btn.setOnClickListener(view -> AppMethods.openActivity(this, RecorderActivity.class));
+        record_new_audio_btn.setOnClickListener(view -> openRecorder());
 
         Button open_from_audio_file_btn = new_project_popup.findViewById(R.id.new_project_from_existing_file_btn);
         open_from_audio_file_btn.setOnClickListener(view -> openFromAudioFile());
@@ -118,7 +119,7 @@ public class MainActivity extends BaseActivity {
 
     // Button actions
     private void createNewProject() {
-        DispatchMethods.sendPopup(new_project_popup, new Fade(), true);
+        new_project_popup_window = DispatchMethods.sendPopup(new_project_popup, new Fade(), true);
     }
 
     private void openFromAudioFile() {
@@ -127,5 +128,10 @@ public class MainActivity extends BaseActivity {
 
     private void openFromVideoFile() {
         extract_audio_from_video.launch("video/*");
+    }
+
+    private void openRecorder() {
+        AppMethods.openActivity(this, RecorderActivity.class);
+        new_project_popup_window.dismiss();
     }
 }

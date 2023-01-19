@@ -1,6 +1,5 @@
 package com.project.rempaudioeditor.customviews;
 
-// TODO: recorder and extractor audio are producing smaller waveforms
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -12,11 +11,20 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -25,6 +33,7 @@ import androidx.annotation.Nullable;
 import com.example.rempaudioeditor.R;
 import com.project.rempaudioeditor.AudioPlayerData;
 import com.project.rempaudioeditor.infos.AudioInfo;
+import com.project.rempaudioeditor.infos.ChannelInfo;
 import com.project.rempaudioeditor.utils.UnitConverter;
 
 import java.util.ArrayList;
@@ -39,9 +48,10 @@ public class WaveformSeekbar extends HorizontalScrollView {
     private EditText current_position_view;
 
     private int selected_view_index = -1;
+    private int selected_channel_index = -1;
 
     private int total_duration;
-    private ArrayList<AudioInfo> audio_tracks;
+    private ArrayList<ChannelInfo> audio_channels;
 
     private int fling_previous_position;
 
@@ -51,6 +61,11 @@ public class WaveformSeekbar extends HorizontalScrollView {
     private OnWaveFormAddedListener waveform_added_listener;
 
     private OnSeekHoldListener holdListener;
+
+    private ScaleGestureDetector scaleDetector;
+    private float scaleFactor = 1.f;
+
+    private final int CHANNEL_SPACE = (int) UnitConverter.convertDpToPx(getContext(), 2);
 
     public interface OnSeekHoldListener {
         void onHold();
@@ -94,17 +109,20 @@ public class WaveformSeekbar extends HorizontalScrollView {
 
             typedArray.recycle();
         }
+        scaleDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
         setHorizontalScrollBarEnabled(false);
     }
 
     public void connectMediaPlayer(@NonNull Context context, @Nullable EditText current_position_view, @Nullable TextView total_duration_view) {
         this.audio_player_data = AudioPlayerData.getInstance();
-        this.audio_tracks = audio_player_data.getTrackList();
+        this.audio_channels = audio_player_data.getChannelList();
 
         Thread conversion = new Thread(() -> {
-            for (int i = 0; i < audio_tracks.size(); i++) {
-                AudioInfo audio_track = audio_tracks.get(i);
-                addWaveform(audio_track);
+            for (int i = 0; i < audio_channels.size(); i++) {
+                ChannelInfo audio_channel = audio_channels.get(i);
+                for (AudioInfo audioInfo : audio_channel.getTrackList()) {
+                    addWaveform(i, audioInfo);
+                }
             }
 
             if (waveforms_initialized_listener != null) {
@@ -125,27 +143,29 @@ public class WaveformSeekbar extends HorizontalScrollView {
         if (current_position_view != null) {
             current_position_view.setOnEditorActionListener((view, actionId, event) -> {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    if ((audio_player_data.getPlayer() != null) && (!audio_player_data.getReleased())) {
-                        int edit_text_position = (int) UnitConverter
-                                .toMilisec(view.getText().toString());
-                        if ((edit_text_position < audio_player_data.getCurrentAudioTrackStart())
-                                || (edit_text_position > audio_player_data.getCurrentAudioTrackEnd())) {
-                            int audio_duration = 0;
-                            for (int i = 0; i < audio_tracks.size(); i++) {
-                                AudioInfo currentTrackInfo = audio_tracks.get(i);
-                                audio_duration += currentTrackInfo.getUriDuration();
-                                if (edit_text_position < audio_duration) {
-                                    audio_player_data.setCurrentAudioTrackIndex(i);
-                                    audio_player_data.getPlayer().reset();
-                                    audio_player_data.startPlayer(getContext());
-                                    audio_player_data.getPlayer()
-                                            .seekTo(edit_text_position - audio_player_data.getCurrentAudioTrackStart());
-                                    break;
+                    for (ChannelInfo channelInfo : audio_channels) {
+                        if ((channelInfo.getPlayer() != null) && (!channelInfo.getReleased())) {
+                            int edit_text_position = (int) UnitConverter
+                                    .toMilisec(view.getText().toString());
+                            if ((edit_text_position < channelInfo.getCurrentAudioTrackStart())
+                                    || (edit_text_position > channelInfo.getCurrentAudioTrackEnd())) {
+                                int audio_duration = 0;
+                                for (int i = 0; i < channelInfo.getTrackList().size(); i++) {
+                                    AudioInfo currentTrackInfo = channelInfo.getTrackList().get(i);
+                                    audio_duration += currentTrackInfo.getUriDuration();
+                                    if (edit_text_position < audio_duration) {
+                                        channelInfo.setCurrentAudioTrackIndex(i);
+                                        channelInfo.getPlayer().reset();
+                                        channelInfo.startPlayer(getContext());
+                                        channelInfo.getPlayer()
+                                                .seekTo(edit_text_position - channelInfo.getCurrentAudioTrackStart());
+                                        break;
+                                    }
                                 }
+                            } else {
+                                channelInfo.getPlayer().seekTo(edit_text_position - channelInfo.getCurrentAudioTrackStart());
+                                channelInfo.resumePlayer();
                             }
-                        } else {
-                            audio_player_data.getPlayer().seekTo(edit_text_position - audio_player_data.getCurrentAudioTrackStart());
-                            audio_player_data.resumePlayer();
                         }
                     }
                     view.clearFocus();
@@ -163,39 +183,66 @@ public class WaveformSeekbar extends HorizontalScrollView {
         }
         else {
             container_layout = new LinearLayout(getContext());
+            container_layout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            container_layout.setOrientation(LinearLayout.VERTICAL);
             addView(container_layout);
         }
 
         return container_layout;
     }
 
+    public LinearLayout getChannelLayout(int channel_index) {
+        LinearLayout container_layout = getContainer();
+        LinearLayout channel_layout;
+
+        if (container_layout.getChildCount() > channel_index) {
+            channel_layout = (LinearLayout) container_layout.getChildAt(channel_index);
+        } else if (container_layout.getChildCount() == channel_index) {
+            channel_layout = new LinearLayout(getContext());
+            container_layout.addView(channel_layout);
+        } else {
+            return null;
+        }
+
+        return channel_layout;
+    }
+
+
+
     private void setTotalDuration(@NonNull TextView total_duration_view) {
         total_duration = audio_player_data.getPlayerTotalDuration();
         total_duration_view.setText(UnitConverter.format(total_duration));
     }
 
-    public void addWaveform(AudioInfo audioTrack) {
-        LinearLayout container_layout = getContainer();
-
+    public void addWaveform(int channel_index, AudioInfo audioTrack) {
         WaveForm waveForm = audioTrack.generateWaveform(getContext());
+        waveForm.setScaleFactor(scaleFactor);
         ((Activity) getContext()).runOnUiThread(() -> {
-            container_layout.addView(waveForm);
+            LinearLayout channel_layout = getChannelLayout(channel_index);
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, (getMeasuredHeight()-(CHANNEL_SPACE*4)) / 4);
+            layoutParams.setMargins(0, 0, 0, CHANNEL_SPACE);
+            channel_layout.setLayoutParams(layoutParams);
+            channel_layout.addView(waveForm);
+
             waveForm.setBarColor(bar_color);
 
             Drawable waveform_background_clone = waveform_background.getConstantState().newDrawable();
             waveForm.setBackground(waveform_background_clone);
 
             waveForm.setOnClickListener(v -> {
-                if (selected_view_index >= 0) {
-                    container_layout.getChildAt(selected_view_index).setSelected(false);
+                if ((selected_channel_index >= 0) && (selected_view_index >= 0)) {
+                    ((LinearLayout) getContainer().getChildAt(selected_channel_index)).getChildAt(selected_view_index).setSelected(false);
                 }
 
-                if (container_layout.indexOfChild(waveForm) == selected_view_index) {
+                if ((getContainer().indexOfChild(channel_layout) == selected_channel_index)
+                        && (channel_layout.indexOfChild(waveForm) == selected_view_index)) {
                     waveForm.setSelected(false);
+                    selected_channel_index = -1;
                     selected_view_index = -1;
                 } else {
                     waveForm.setSelected(true);
-                    selected_view_index = container_layout.indexOfChild(waveForm);
+                    selected_view_index = channel_layout.indexOfChild(waveForm);
+                    selected_channel_index = getContainer().indexOfChild(channel_layout);
                 }
             });
 
@@ -230,15 +277,16 @@ public class WaveformSeekbar extends HorizontalScrollView {
     }
 
     private void updateWaveformSeekbar() {
-        if ((!audio_player_data.getReleased()) && (audio_player_data.getPlayer().isPlaying())) {
-            setWaveformProgress(audio_player_data.getPlayer().getCurrentPosition());
+        ChannelInfo channelInfo = audio_player_data.getChannelList().get(audio_player_data.getLongestChannelIndex());
+        if ((!channelInfo.getReleased()) && (channelInfo.getPlayer().isPlaying())) {
+            setWaveformProgress(channelInfo.getPlayer().getCurrentPosition());
         }
 
         if (current_position_view != null && !current_position_view.hasFocus()) {
-            double progress_ratio = (double) getScrollX() / getChildAt(0).getWidth();
+            double progress_ratio = (double) getScrollX() / getContainer().getWidth();
             double absolute_progress = progress_ratio * total_duration;
             current_position_view.setText(UnitConverter
-                    .format((long) absolute_progress));
+                    .format(Math.round(absolute_progress)));
         }
 
         seekHandler.postDelayed(waveform_updater, 50);
@@ -246,7 +294,8 @@ public class WaveformSeekbar extends HorizontalScrollView {
 
     public void setWaveformProgress(long position_milisec) {
         if (getChildCount() > 0) {
-            double ratio = (double) (position_milisec + audio_player_data.getCurrentAudioTrackStart()) / total_duration;
+            ChannelInfo channelInfo = audio_player_data.getChannelList().get(audio_player_data.getLongestChannelIndex());
+            double ratio = (double) (position_milisec + channelInfo.getCurrentAudioTrackStart()) / total_duration;
             smoothScrollTo((int) (ratio * getChildAt(0).getWidth()), 0);
         }
     }
@@ -255,24 +304,31 @@ public class WaveformSeekbar extends HorizontalScrollView {
         double progress_ratio = (double) getScrollX() / getChildAt(0).getWidth();
         double absolute_progress = progress_ratio * total_duration;
 
-        if ((absolute_progress < audio_player_data.getCurrentAudioTrackStart())
-                || (absolute_progress > audio_player_data.getCurrentAudioTrackEnd())) {
-            int audio_duration_iterator = 0;
-            for (int i = 0; i < audio_tracks.size(); i++) {
-                AudioInfo currentTrackInfo = audio_tracks.get(i);
-                audio_duration_iterator += currentTrackInfo.getUriDuration();
-                if (absolute_progress < audio_duration_iterator) {
-                    audio_player_data.setCurrentAudioTrackIndex(i);
-                    audio_player_data.getPlayer().reset();
-                    audio_player_data.startPlayer(getContext().getApplicationContext());
-                    audio_player_data.pausePlayer();
-                    if (audio_player_data.getPlayer() != null)
-                        audio_player_data.getPlayer().seekTo((int) ((absolute_progress) - audio_player_data.getCurrentAudioTrackStart()));
-                    break;
+        for (ChannelInfo channelInfo : audio_channels) {
+            if ((absolute_progress < channelInfo.getCurrentAudioTrackStart())
+                    || (absolute_progress > channelInfo.getCurrentAudioTrackEnd())
+                    || (channelInfo.getReleased())) {
+                int audio_duration_iterator = 0;
+                for (int i = 0; i < channelInfo.getTrackList().size(); i++) {
+                    AudioInfo currentTrackInfo = channelInfo.getTrackList().get(i);
+                    audio_duration_iterator += currentTrackInfo.getUriDuration();
+                    if (absolute_progress < audio_duration_iterator) {
+                        channelInfo.setCurrentAudioTrackIndex(i);
+                        if (!channelInfo.getReleased())
+                            channelInfo.getPlayer().reset();
+                        channelInfo.startPlayer(getContext().getApplicationContext());
+                        channelInfo.pausePlayer();
+                        channelInfo.getPlayer().seekTo((int) ((absolute_progress) - channelInfo.getCurrentAudioTrackStart()));
+                        break;
+                    }
+
+                    if (i == channelInfo.getTrackList().size() - 1) {
+                        channelInfo.releasePlayer();
+                    }
                 }
+            } else {
+                channelInfo.getPlayer().seekTo((int) ((absolute_progress) - channelInfo.getCurrentAudioTrackStart()));
             }
-        } else {
-            audio_player_data.getPlayer().seekTo((int) ((absolute_progress) - audio_player_data.getCurrentAudioTrackStart()));
         }
 
         if (current_position_view != null && !current_position_view.hasFocus()) {
@@ -295,15 +351,35 @@ public class WaveformSeekbar extends HorizontalScrollView {
     }
 
     public void handleTouchEvent(MotionEvent ev) {
+        if (ev.getPointerCount() > 1)
+            scaleDetector.onTouchEvent(ev);
+
         if (audio_player_data != null) {
-            switch (ev.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    if ((!audio_player_data.getReleased()) && (audio_player_data.getPlayer().isPlaying())) {
-                        audio_player_data.pausePlayer();
-                        holdListener.onHold();
-                    }
-                    break;
+            if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+                audio_player_data.pausePlayers();
+                holdListener.onHold();
             }
+        }
+    }
+
+    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            scaleFactor *= detector.getScaleFactor();
+            scaleFactor = Math.max(0.2f, Math.min(1.f, scaleFactor));
+
+            // TODO: scaling here
+            for (int i = 0; i < audio_channels.size(); i++) {
+                ChannelInfo channelInfo = audio_channels.get(i);
+                ArrayList<AudioInfo> trackList = channelInfo.getTrackList();
+                for (int j = 0; j < trackList.size(); j++) {
+                    ((WaveForm) getChannelLayout(i).getChildAt(j)).setScaleFactor(scaleFactor);
+                    getChannelLayout(i).getChildAt(j).requestLayout();
+                }
+            }
+
+            invalidate();
+            return true;
         }
     }
 
@@ -328,10 +404,10 @@ public class WaveformSeekbar extends HorizontalScrollView {
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
 
-        pin.left = ((getWidth() - PIN_WIDTH ) / 2) + getScrollX();
+        pin.left = ((getWidth() - PIN_WIDTH) / 2) + getScrollX();
         pin.right = pin.left + PIN_WIDTH;
-        pin.top = 0;
-        pin.bottom = getHeight();
+        pin.top = getContainer().getTop();
+        pin.bottom = getContainer().getBottom() - CHANNEL_SPACE;
 
         pin_paint.setColor(pin_color);
         setPadding(getWidth()/2, 0, getWidth()/2, 0);

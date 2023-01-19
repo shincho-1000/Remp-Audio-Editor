@@ -26,16 +26,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.rempaudioeditor.R;
-import com.project.rempaudioeditor.AudioPlayerData;
 import com.project.rempaudioeditor.AppMethods;
+import com.project.rempaudioeditor.AudioPlayerData;
 import com.project.rempaudioeditor.constants.AppConstants;
+import com.project.rempaudioeditor.customviews.WaveformSeekbar;
 import com.project.rempaudioeditor.enums.EditorTrayId;
 import com.project.rempaudioeditor.infos.AudioInfo;
+import com.project.rempaudioeditor.infos.ChannelInfo;
 import com.project.rempaudioeditor.recycleradapters.EditorTrayItemAdapter;
 import com.project.rempaudioeditor.dispatch.DispatchMethods;
 import com.project.rempaudioeditor.infos.EditorTrayItemInfo;
 import com.project.rempaudioeditor.constants.RecyclerViewItems;
-import com.project.rempaudioeditor.customviews.WaveformSeekbar;
 import com.project.rempaudioeditor.utils.FileConverter;
 
 import java.io.File;
@@ -57,7 +58,7 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
                 if (uri != null) {
                     AudioInfo new_audio = new AudioInfo(this, uri);
                     AudioPlayerData audio_player_data = AudioPlayerData.getInstance();
-                    audio_player_data.addTrack(new_audio);
+                    audio_player_data.addTrack(1, new_audio);
 
                     new Handler().postDelayed(() -> {
                         PopupWindow loading_popup_window = DispatchMethods.sendPopup(loading_popup, new Fade(), false);
@@ -65,7 +66,7 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
                     }, AppConstants.getPopupSendDelayMilisec());
 
                     Thread waveform_generation = new Thread(() -> {
-                        seekbar.addWaveform(new_audio);
+                        seekbar.addWaveform(1, new_audio);
                     });
                     waveform_generation.start();
                 }
@@ -89,12 +90,11 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
                                 File destination_file = new File(directory, destination_file_name);
                                 Toast.makeText(this, "File saved successfully!", Toast.LENGTH_SHORT).show();
                                 try {
-                                    // TODO: add a loader dialog here
                                     FileConverter.extractAudioFromVideo(this, uri, destination_file.getPath(), -1, -1);
 
                                     AudioInfo new_audio = new AudioInfo(this, Uri.fromFile(destination_file));
                                     AudioPlayerData audio_player_data = AudioPlayerData.getInstance();
-                                    audio_player_data.addTrack(new_audio);
+                                    audio_player_data.addTrack(2, new_audio);
 
                                     new Handler().postDelayed(() -> {
                                         PopupWindow loading_popup_window = DispatchMethods.sendPopup(loading_popup, new Fade(), false);
@@ -102,7 +102,7 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
                                     }, AppConstants.getPopupSendDelayMilisec());
 
                                     Thread waveform_generation = new Thread(() -> {
-                                        seekbar.addWaveform(new_audio);
+                                        seekbar.addWaveform(2, new_audio);
                                     });
                                     waveform_generation.start();
                                 } catch (IOException e) {
@@ -186,24 +186,27 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
 
     private void togglePlay() {
         audio_player_data = AudioPlayerData.getInstance();
-        MediaPlayer audio_player = audio_player_data.getPlayer();
-        if (audio_player != null) {
-            if (audio_player.isPlaying()) {
-                audio_player_data.pausePlayer();
+
+        ChannelInfo longest_channel = audio_player_data.getChannelList().get(audio_player_data.getLongestChannelIndex());
+        MediaPlayer audio_player = longest_channel.getPlayer();
+
+        if (audio_player_data.isInitialized()) {
+            if ((!longest_channel.getReleased()) && (audio_player.isPlaying())) {
+                audio_player_data.pausePlayers();
                 play_audio_btn.setImageResource(R.drawable.icon_play);
             } else {
                 seekbar.seekPlayer();
-                audio_player_data.resumePlayer();
+                audio_player_data.resumePlayers();
                 play_audio_btn.setImageResource(R.drawable.icon_pause);
             }
         } else {
-            audio_player_data.startPlayer(this);
+            audio_player_data.startPlayers(this);
             seekbar.seekPlayer();
-            audio_player_data.resumePlayer();
+            audio_player_data.resumePlayers();
             play_audio_btn.setImageResource(R.drawable.icon_pause);
         }
 
-        AudioPlayerData.getInstance().setPlayerCompletionListener(() -> play_audio_btn.setImageResource(R.drawable.icon_play));
+        audio_player_data.getChannelList().get(audio_player_data.getLongestChannelIndex()).setPlayerCompletionListener(() -> play_audio_btn.setImageResource(R.drawable.icon_play));
     }
 
     // Button actions
@@ -223,7 +226,7 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
     protected void onDestroy() {
         super.onDestroy();
 
-        AudioPlayerData.getInstance().endPlayer();
+        AudioPlayerData.getInstance().endPlayers();
 
         seekbar.removeWaveform(-1);
     }
@@ -237,7 +240,7 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
             case DELETE:
                 int selected_waveform_index = seekbar.getSelectedViewIndex();
                 if (selected_waveform_index >= 0) {
-                    AudioPlayerData.getInstance().removeTrack(selected_waveform_index);
+                    AudioPlayerData.getInstance().removeTrack(0, selected_waveform_index);
                     seekbar.removeWaveform(selected_waveform_index);
                 }
                 break;
