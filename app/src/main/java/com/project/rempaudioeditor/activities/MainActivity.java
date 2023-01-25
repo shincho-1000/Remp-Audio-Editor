@@ -41,7 +41,7 @@ public class MainActivity extends BaseActivity {
                 if (uri != null) {
                     AudioInfo new_audio = new AudioInfo(this, uri);
                     AudioPlayerData audio_player_data = AudioPlayerData.getInstance();
-                    audio_player_data.addTrack(0, new_audio);
+                    audio_player_data.addTrack(0, -1, new_audio);
                     AppMethods.openActivity(MainActivity.this, EditorActivity.class);
                     new_project_popup_window.dismiss();
                 }
@@ -68,7 +68,7 @@ public class MainActivity extends BaseActivity {
                                     FileConverter.extractAudioFromVideo(this, uri, destination_file.getPath(), -1, -1);
 
                                     AudioInfo new_audio = new AudioInfo(this, Uri.fromFile(destination_file));
-                                    AudioPlayerData.getInstance().addTrack(0, new_audio);
+                                    AudioPlayerData.getInstance().addTrack(0, -1, new_audio);
                                     AppMethods.openActivity(this, EditorActivity.class);
                                     new_project_popup_window.dismiss();
                                 } catch (IOException e) {

@@ -2,6 +2,8 @@ package com.project.rempaudioeditor.customviews;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -12,19 +14,15 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.Gravity;
+import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -32,6 +30,7 @@ import androidx.annotation.Nullable;
 
 import com.example.rempaudioeditor.R;
 import com.project.rempaudioeditor.AudioPlayerData;
+import com.project.rempaudioeditor.customviews.waveformshadowbuilder.WaveformShadowBuilder;
 import com.project.rempaudioeditor.infos.AudioInfo;
 import com.project.rempaudioeditor.infos.ChannelInfo;
 import com.project.rempaudioeditor.utils.UnitConverter;
@@ -44,11 +43,17 @@ public class WaveformSeekbar extends HorizontalScrollView {
 
     private int bar_color = Color.BLACK;
     private int pin_color = Color.MAGENTA;
+    private int drag_pin_color = Color.MAGENTA;
     private Drawable waveform_background;
+    private Drawable drag_background;
+    private Drawable drag_icon;
     private EditText current_position_view;
 
     private int selected_view_index = -1;
     private int selected_channel_index = -1;
+
+    private int dragging_channel_index = -1; // negative if no dragging
+    private float drag_pin_x = 0;
 
     private int total_duration;
     private ArrayList<ChannelInfo> audio_channels;
@@ -79,6 +84,12 @@ public class WaveformSeekbar extends HorizontalScrollView {
     private final Paint pin_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     public final float PIN_WIDTH = (float) UnitConverter.convertDpToPx(getContext(), 3);
 
+    private final RectF drag_pin = new RectF();
+    private final Paint drag_pin_paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    public final float DRAG_PIN_WIDTH = (float) UnitConverter.convertDpToPx(getContext(), 3);
+
+    public int PADDING = 0;
+
     Runnable waveform_updater = this::updateWaveformSeekbar;
 
     Runnable fling_checker = this::checkFling;
@@ -105,7 +116,10 @@ public class WaveformSeekbar extends HorizontalScrollView {
 
             bar_color = typedArray.getColor(R.styleable.WaveformSeekbar_waveBarColor, Color.BLACK);
             waveform_background = typedArray.getDrawable(R.styleable.WaveformSeekbar_waveBackground);
+            drag_background = typedArray.getDrawable(R.styleable.WaveformSeekbar_dragBackground);
+            drag_icon = typedArray.getDrawable(R.styleable.WaveformSeekbar_dragIcon);
             pin_color = typedArray.getColor(R.styleable.WaveformSeekbar_pinColor, Color.MAGENTA);
+            drag_pin_color = typedArray.getColor(R.styleable.WaveformSeekbar_dragPinColor, Color.MAGENTA);
 
             typedArray.recycle();
         }
@@ -121,7 +135,7 @@ public class WaveformSeekbar extends HorizontalScrollView {
             for (int i = 0; i < audio_channels.size(); i++) {
                 ChannelInfo audio_channel = audio_channels.get(i);
                 for (AudioInfo audioInfo : audio_channel.getTrackList()) {
-                    addWaveform(i, audioInfo);
+                    addNewWaveform(i, audioInfo);
                 }
             }
 
@@ -207,14 +221,38 @@ public class WaveformSeekbar extends HorizontalScrollView {
         return channel_layout;
     }
 
-
-
     private void setTotalDuration(@NonNull TextView total_duration_view) {
         total_duration = audio_player_data.getPlayerTotalDuration();
         total_duration_view.setText(UnitConverter.format(total_duration));
     }
 
-    public void addWaveform(int channel_index, AudioInfo audioTrack) {
+
+    public void moveWaveform(View waveForm, int new_track_channel_index , int new_track_index) {
+        ViewGroup old_channel = (ViewGroup) waveForm.getParent();
+        int old_channel_index = getContainer().indexOfChild(old_channel);
+        int old_track_index = old_channel.indexOfChild(waveForm);
+
+        removeWaveform(old_channel_index, old_track_index);
+
+        if (old_channel_index == new_track_channel_index) {
+            if (old_track_index < new_track_index) {
+                new_track_index = new_track_index - 1;
+            }
+        }
+
+        if ((old_channel.getChildCount() == 0) && (old_channel_index < new_track_channel_index)) {
+            new_track_channel_index = new_track_channel_index - 1;
+        }
+
+        if (getChannelLayout(new_track_channel_index).getChildCount() == new_track_index)
+            getChannelLayout(new_track_channel_index).addView(waveForm);
+        else
+            getChannelLayout(new_track_channel_index).addView(waveForm, new_track_index);
+
+        audio_player_data.moveTrack(old_channel_index, old_track_index, new_track_channel_index, new_track_index);
+    }
+
+    public void addNewWaveform(int channel_index, AudioInfo audioTrack) {
         WaveForm waveForm = audioTrack.generateWaveform(getContext());
         waveForm.setScaleFactor(scaleFactor);
         ((Activity) getContext()).runOnUiThread(() -> {
@@ -246,6 +284,106 @@ public class WaveformSeekbar extends HorizontalScrollView {
                 }
             });
 
+            waveForm.setOnLongClickListener(view -> {
+                view.setTag("TAG");
+                ClipData.Item item = new ClipData.Item((CharSequence) view.getTag());
+
+                String[] mimeTypes = { ClipDescription.MIMETYPE_TEXT_PLAIN };
+                ClipData data = new ClipData(view.getTag().toString(), mimeTypes, item);
+                WaveformShadowBuilder shadowBuilder = new WaveformShadowBuilder(view);
+
+                shadowBuilder.setShadowDrawable(drag_background);
+                shadowBuilder.setIconDrawable(drag_icon);
+
+                view.startDragAndDrop(data,
+                        shadowBuilder,
+                        view,
+                        0 );
+                return false;
+            });
+
+            setOnDragListener((view, event) -> {
+                int action = event.getAction();
+                switch (action) {
+                    case DragEvent.ACTION_DRAG_LOCATION:
+                        float x = event.getX();
+                        float y = event.getY();
+
+                        float threshold = (float) UnitConverter.convertDpToPx(getContext(), 40);
+                        if (x < threshold) { // click is near the left edge
+                            smoothScrollBy(-30, 0);
+                        }
+                        if (x > getMeasuredWidth() - threshold) {
+                            smoothScrollBy(30, 0);
+                        }
+
+                        LinearLayout container_layout = getContainer();
+
+                        drag_pin_x = Math.max(getWidth()/2f, Math.min(x + getScrollX(), (getContainer().getWidth() + getWidth() / 2f))); // limits the pin between padding start and end
+
+                        for (int i = 0; i < container_layout.getChildCount(); i++) {
+                            LinearLayout channel_container = getChannelLayout(i);
+                            int channel_top = channel_container.getTop();
+                            int channel_bottom = channel_container.getBottom();
+
+                            if ((y > channel_top) && (y < channel_bottom)) {
+                                dragging_channel_index = i;
+
+                                // TODO: create a gap instead of a line
+                                for (int j = 0; j < channel_container.getChildCount(); j++) {
+                                    WaveForm track = (WaveForm) channel_container.getChildAt(j);
+                                    int threshold_drag = (int) UnitConverter.convertDpToPx(getContext(), 10);
+                                    if ((track.getLeft() + PADDING < drag_pin_x + threshold_drag) && (track.getLeft() + PADDING > drag_pin_x - threshold_drag)) {
+                                        drag_pin_x = track.getLeft() + PADDING;
+                                        break;
+                                    }
+                                    if ((track.getRight() + PADDING < drag_pin_x + threshold_drag) && (track.getRight() + PADDING > drag_pin_x - threshold_drag)) {
+                                        drag_pin_x = track.getRight() + PADDING;
+                                        break;
+                                    }
+                                }
+                            } else if (y > channel_bottom) {
+                                dragging_channel_index = -1;
+                            }
+                        }
+
+                        ((View) event.getLocalState()).setVisibility(View.GONE);
+                        break;
+                    case DragEvent.ACTION_DRAG_EXITED:
+                        dragging_channel_index = -1;
+                        drag_pin_x = 0;
+                        break;
+                    case DragEvent.ACTION_DROP:
+                        if (getChannelLayout(dragging_channel_index) != null) {
+                            for (int i = 0; i < getChannelLayout(dragging_channel_index).getChildCount(); i++) {
+                                WaveForm track = (WaveForm) getChannelLayout(dragging_channel_index).getChildAt(i);
+                                int threshold_drag = (int) UnitConverter.convertDpToPx(getContext(), 10);
+                                float drag_pos = Math.max(getWidth() / 2f, Math.min(event.getX() + getScrollX(), (getContainer().getWidth() + getWidth() / 2f)));
+                                View dragged = (View) event.getLocalState();
+                                ViewGroup channel = (ViewGroup) dragged.getParent();
+                                if ((track.getLeft() + PADDING < drag_pos + threshold_drag) && (track.getLeft() + PADDING > drag_pos - threshold_drag)) {
+                                    moveWaveform(dragged, dragging_channel_index, i);
+                                    break;
+                                }
+                                if ((track.getRight() + PADDING < drag_pos + threshold_drag) && (track.getRight() + PADDING > drag_pos - threshold_drag)) {
+                                    moveWaveform(dragged, dragging_channel_index, i + 1);
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    case DragEvent.ACTION_DRAG_ENDED:
+                        dragging_channel_index = -1;
+                        drag_pin_x = 0;
+
+                        ((View) event.getLocalState()).setVisibility(View.VISIBLE);
+                        break;
+                }
+
+                invalidate();
+                return true;
+            });
+
             if (total_duration_view != null)
                 setTotalDuration(total_duration_view);
         });
@@ -256,19 +394,27 @@ public class WaveformSeekbar extends HorizontalScrollView {
         }
     }
 
-    public void removeWaveform(int waveformIndex) {
-        LinearLayout container_layout;
+    public void removeWaveform(int channel_index, int waveformIndex) {
+        if (channel_index == -1) {
+            getContainer().removeAllViews();
+        } else {
+            LinearLayout channel_layout = getChannelLayout(channel_index);
 
-        if (getChildCount() > 0) {
-            container_layout = (LinearLayout) getChildAt(0);
-            if (waveformIndex >= 0)
-                container_layout.removeViewAt(waveformIndex);
-            else if (waveformIndex == -1)
-                container_layout.removeAllViews();
+            if (channel_layout != null) {
+                if (waveformIndex >= 0)
+                    channel_layout.removeViewAt(waveformIndex);
+                else if (waveformIndex == -1)
+                    channel_layout.removeAllViews();
+
+                if (channel_layout.getChildCount() == 0) {
+                    getContainer().removeView(channel_layout);
+                }
+            }
         }
 
         if (waveformIndex == selected_view_index) {
             selected_view_index = -1;
+            selected_channel_index = -1;
         }
 
         if (total_duration_view != null) {
@@ -404,21 +550,39 @@ public class WaveformSeekbar extends HorizontalScrollView {
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
 
+        if (dragging_channel_index > -1) {
+            drag_pin.left = drag_pin_x;
+            drag_pin.right = drag_pin.left + DRAG_PIN_WIDTH;
+            drag_pin.top = getChannelLayout(dragging_channel_index).getTop();
+            drag_pin.bottom = getChannelLayout(dragging_channel_index).getBottom();
+
+            drag_pin_paint.setColor(drag_pin_color);
+
+            canvas.drawRect(drag_pin, drag_pin_paint);
+        }
+
         pin.left = ((getWidth() - PIN_WIDTH) / 2) + getScrollX();
         pin.right = pin.left + PIN_WIDTH;
         pin.top = getContainer().getTop();
         pin.bottom = getContainer().getBottom() - CHANNEL_SPACE;
 
         pin_paint.setColor(pin_color);
-        setPadding(getWidth()/2, 0, getWidth()/2, 0);
-        setClipToPadding(false);
-        setScrollBarStyle(SCROLLBARS_OUTSIDE_INSET);
 
         canvas.drawRect(pin, pin_paint);
+
+        PADDING = getWidth()/2;
+
+        setPadding(PADDING, 0, PADDING, 0);
+        setClipToPadding(false);
+        setScrollBarStyle(SCROLLBARS_OUTSIDE_INSET);
     }
 
     public int getSelectedViewIndex() {
         return selected_view_index;
+    }
+
+    public int getSelectedChannelIndex() {
+        return selected_channel_index;
     }
 
     public void setWaveFormsInitializedListener(@NonNull OnWaveFormsInitializedListener event_listener) {

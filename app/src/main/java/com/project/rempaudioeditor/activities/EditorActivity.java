@@ -58,7 +58,7 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
                 if (uri != null) {
                     AudioInfo new_audio = new AudioInfo(this, uri);
                     AudioPlayerData audio_player_data = AudioPlayerData.getInstance();
-                    audio_player_data.addTrack(1, new_audio);
+                    audio_player_data.addTrack(1, -1, new_audio);
 
                     new Handler().postDelayed(() -> {
                         PopupWindow loading_popup_window = DispatchMethods.sendPopup(loading_popup, new Fade(), false);
@@ -66,7 +66,7 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
                     }, AppConstants.getPopupSendDelayMilisec());
 
                     Thread waveform_generation = new Thread(() -> {
-                        seekbar.addWaveform(1, new_audio);
+                        seekbar.addNewWaveform(1, new_audio);
                     });
                     waveform_generation.start();
                 }
@@ -94,7 +94,7 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
 
                                     AudioInfo new_audio = new AudioInfo(this, Uri.fromFile(destination_file));
                                     AudioPlayerData audio_player_data = AudioPlayerData.getInstance();
-                                    audio_player_data.addTrack(2, new_audio);
+                                    audio_player_data.addTrack(2, -1, new_audio);
 
                                     new Handler().postDelayed(() -> {
                                         PopupWindow loading_popup_window = DispatchMethods.sendPopup(loading_popup, new Fade(), false);
@@ -102,7 +102,7 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
                                     }, AppConstants.getPopupSendDelayMilisec());
 
                                     Thread waveform_generation = new Thread(() -> {
-                                        seekbar.addWaveform(2, new_audio);
+                                        seekbar.addNewWaveform(2, new_audio);
                                     });
                                     waveform_generation.start();
                                 } catch (IOException e) {
@@ -228,7 +228,7 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
 
         AudioPlayerData.getInstance().endPlayers();
 
-        seekbar.removeWaveform(-1);
+        seekbar.removeWaveform(-1, -1);
     }
 
     @Override
@@ -238,10 +238,24 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
 
         switch (editor_tray_id) {
             case DELETE:
+                audio_player_data = AudioPlayerData.getInstance();
                 int selected_waveform_index = seekbar.getSelectedViewIndex();
-                if (selected_waveform_index >= 0) {
-                    AudioPlayerData.getInstance().removeTrack(0, selected_waveform_index);
-                    seekbar.removeWaveform(selected_waveform_index);
+                int selected_channel_index = seekbar.getSelectedChannelIndex();
+                if ((selected_channel_index >= 0) && (selected_waveform_index >= 0)) {
+                    if (audio_player_data.noOfTracks() > 1) {
+                        audio_player_data.removeTrack(selected_channel_index, selected_waveform_index);
+                        seekbar.removeWaveform(selected_channel_index, selected_waveform_index);
+
+                        ChannelInfo longest_channel = audio_player_data.getChannelList().get(audio_player_data.getLongestChannelIndex());
+                        MediaPlayer audio_player = longest_channel.getPlayer();
+
+                        if (audio_player_data.isInitialized()) {
+                            if ((!longest_channel.getReleased()) && (audio_player.isPlaying())) {
+                                audio_player_data.pausePlayers();
+                                play_audio_btn.setImageResource(R.drawable.icon_play);
+                            }
+                        }
+                    }
                 }
                 break;
         }

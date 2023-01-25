@@ -29,7 +29,10 @@
     <declare-styleable name="WaveformSeekbar">
         <attr name="waveBackground" format="reference"/>
         <attr name="waveBarColor" format="color"/>
+        <attr name="dragBackground" format="reference"/>
+        <attr name="dragIcon" format="reference"/>
         <attr name="pinColor" format="color"/>
+        <attr name="dragPinColor" format="color"/>
         <attr name="durationView" format="reference"/>
     </declare-styleable>
 </resources>

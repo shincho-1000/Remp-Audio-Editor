@@ -24,8 +24,11 @@ public class ChannelInfo {
 
     private OnPlayerCompletionListener player_completed_listener;
 
-    public void addTrack(AudioInfo newTrack) {
-        audio_tracks.add(newTrack);
+    public void addTrack(int track_index, AudioInfo newTrack) {
+        if (track_index < 0)
+            audio_tracks.add(newTrack);
+        else
+            audio_tracks.add(track_index, newTrack);
     }
 
     public void removeTrack(int index) {

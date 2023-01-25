@@ -25,7 +25,6 @@ public class AudioPlayerData {
 
     private int audio_session_id = -1;
     private boolean initialized = false;
-    private int longest_channel_index;
 
     private final ArrayList<ChannelInfo> audio_channels = new ArrayList<>();
 
@@ -50,15 +49,34 @@ public class AudioPlayerData {
         seekbar.connectMediaPlayer(context, current_duration_edit_view, total_duration_edit_view);
     }
 
-    public void addTrack(int channel_index, AudioInfo newTrack) {
+    public void addTrack(int channel_index, int track_index, AudioInfo newTrack) {
         if (audio_channels.size() <= channel_index) {
             audio_channels.add(channel_index, new ChannelInfo());
         }
-        audio_channels.get(channel_index).addTrack(newTrack);
+        if (track_index < 0)
+            audio_channels.get(channel_index).addTrack(-1, newTrack);
+        else
+            audio_channels.get(channel_index).addTrack(track_index, newTrack);
+    }
+
+    public void moveTrack(int original_track_channel_index, int original_track_index, int new_track_channel_index , int new_track_index) {
+        if ((original_track_channel_index != new_track_channel_index) && (original_track_index != new_track_index)) {
+            AudioInfo track = audio_channels.get(original_track_channel_index).getTrackList().get(original_track_index);
+            addTrack(new_track_channel_index, new_track_index, track);
+            removeTrack(original_track_channel_index, original_track_index);
+        }
     }
 
     public void removeTrack(int channel_index, int track_index) {
+        if (audio_channels.get(channel_index).getCurrentAudioTrackIndex() == track_index) {
+            audio_channels.get(channel_index).releasePlayer();
+        }
+
         audio_channels.get(channel_index).removeTrack(track_index);
+
+        if (audio_channels.get(channel_index).getTrackList().size() == 0) {
+            audio_channels.remove(channel_index);
+        }
     }
 
     public void initializeCircleVisualizer() {
@@ -139,11 +157,21 @@ public class AudioPlayerData {
             ChannelInfo channelInfo = audio_channels.get(i);
             if (channelInfo.getPlayerTotalDuration() > player_total_duration) {
                 player_total_duration = channelInfo.getPlayerTotalDuration();
-                longest_channel_index = i;
             }
         }
 
         return player_total_duration;
+    }
+
+    public int noOfTracks() {
+        int no_of_tracks = 0;
+
+        for (int i = 0; i < audio_channels.size(); i++) {
+            ChannelInfo channelInfo = audio_channels.get(i);
+            no_of_tracks += channelInfo.getTrackList().size();
+        }
+
+        return no_of_tracks;
     }
 
     public ArrayList<ChannelInfo> getChannelList() {
@@ -151,6 +179,17 @@ public class AudioPlayerData {
     }
 
     public int getLongestChannelIndex() {
+        int player_total_duration = 0;
+        int longest_channel_index = -1;
+
+        for (int i = 0; i < audio_channels.size(); i++) {
+            ChannelInfo channelInfo = audio_channels.get(i);
+            if (channelInfo.getPlayerTotalDuration() > player_total_duration) {
+                player_total_duration = channelInfo.getPlayerTotalDuration();
+                longest_channel_index = i;
+            }
+        }
+
         return longest_channel_index;
     }
 

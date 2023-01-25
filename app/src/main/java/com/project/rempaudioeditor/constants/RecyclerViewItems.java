@@ -93,7 +93,7 @@ public class RecyclerViewItems {
         itemList.add(new EditorTrayItemInfo("Trim", R.drawable.icon_trim, TRIM));
         itemList.add(new EditorTrayItemInfo("Record", R.drawable.icon_audio, RECORD));
         itemList.add(new EditorTrayItemInfo("Delete", R.drawable.icon_delete_editor, DELETE));
-        itemList.add(new EditorTrayItemInfo("Split", null, SPLIT));
+        itemList.add(new EditorTrayItemInfo("Split", R.drawable.icon_split, SPLIT));
 
         return itemList;
     }
