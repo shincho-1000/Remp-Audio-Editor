@@ -117,7 +117,6 @@ public class MainActivity extends BaseActivity {
         super.onResume();
     }
 
-    // Button actions
     private void createNewProject() {
         new_project_popup_window = DispatchMethods.sendPopup(new_project_popup, new Fade(), true);
     }

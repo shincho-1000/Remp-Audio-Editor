@@ -1,7 +1,5 @@
 package com.project.rempaudioeditor.activities;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,9 +8,7 @@ import android.provider.DocumentsContract;
 import android.transition.Fade;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -29,19 +25,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.rempaudioeditor.R;
 import com.project.rempaudioeditor.AppMethods;
 import com.project.rempaudioeditor.AppSettings;
+import com.project.rempaudioeditor.constants.AppConstants;
 import com.project.rempaudioeditor.constants.PermissionRequestConstants;
+import com.project.rempaudioeditor.constants.RecyclerViewItems;
 import com.project.rempaudioeditor.customviews.ColorSelectionButton;
-import com.project.rempaudioeditor.enums.ColorId;
-import com.project.rempaudioeditor.recycleradapters.SettingsItemsAdapter;
-import com.project.rempaudioeditor.utils.UnitConverter;
-import com.project.rempaudioeditor.utils.UriConverter;
 import com.project.rempaudioeditor.database.SettingsJsonManager;
 import com.project.rempaudioeditor.dispatch.DispatchMethods;
+import com.project.rempaudioeditor.enums.ColorId;
 import com.project.rempaudioeditor.enums.SettingId;
 import com.project.rempaudioeditor.enums.ThemeId;
 import com.project.rempaudioeditor.infos.SettingsItemInfo;
-import com.project.rempaudioeditor.constants.AppConstants;
-import com.project.rempaudioeditor.constants.RecyclerViewItems;
+import com.project.rempaudioeditor.recycleradapters.SettingsItemsAdapter;
+import com.project.rempaudioeditor.utils.UriConverter;
 
 import java.util.ArrayList;
 
@@ -79,7 +74,6 @@ public class SettingsActivity extends BaseActivity implements SettingsItemsAdapt
         back_btn.setOnClickListener(view -> AppMethods.finishActivity(this));
     }
 
-    // Recycler view clicks
     @Override
     public void onSettingsItemClick(int position) {
         SettingsItemInfo item = settings_items.get(position);
@@ -193,7 +187,6 @@ public class SettingsActivity extends BaseActivity implements SettingsItemsAdapt
         }
     }
 
-    // Button actions
     private void changeColorAccent(ColorId color_id) {
         if (color_id == ColorId.WALLPAPER) {
             if ((ContextCompat.checkSelfPermission(this, PermissionRequestConstants.WRITE_STORAGE_PERMISSION)

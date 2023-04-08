@@ -10,6 +10,7 @@ import android.transition.Fade;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -53,21 +54,37 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
     private View loading_popup;
     private WaveformSeekbar seekbar;
 
+    Runnable loading_popup_dispatch = new Runnable() {
+        @Override
+        public void run() {
+            PopupWindow loading_popup_window = DispatchMethods.sendPopup(loading_popup, new Fade(), false);
+
+            ViewGroup rootView = (ViewGroup) getWindow().getDecorView().getRootView();
+            for (int i = 0; i < rootView.getChildCount(); i++) {
+                View child = rootView.getChildAt(i);
+                if (child != loading_popup_window.getContentView()) {
+                    child.setEnabled(false);
+                    if (child instanceof ViewGroup) {
+                        disableTouchEvents((ViewGroup) child);
+                    }
+                }
+            }
+
+            loading_popup_window.setOnDismissListener(() -> enableTouchEvents(rootView));
+
+            seekbar.setWaveFormAddedListener(() -> EditorActivity.this.runOnUiThread(loading_popup_window::dismiss));
+        }
+    };
+
     ActivityResultLauncher<String> select_audio_file = registerForActivityResult(new ActivityResultContracts.GetContent(),
             uri -> {
                 if (uri != null) {
                     AudioInfo new_audio = new AudioInfo(this, uri);
-                    AudioPlayerData audio_player_data = AudioPlayerData.getInstance();
                     audio_player_data.addTrack(1, -1, new_audio);
 
-                    new Handler().postDelayed(() -> {
-                        PopupWindow loading_popup_window = DispatchMethods.sendPopup(loading_popup, new Fade(), false);
-                        seekbar.setWaveFormAddedListener(() -> runOnUiThread(loading_popup_window::dismiss));
-                    }, AppConstants.getPopupSendDelayMilisec());
+                    new Handler().postDelayed(loading_popup_dispatch, AppConstants.getPopupSendDelayMilisec());
 
-                    Thread waveform_generation = new Thread(() -> {
-                        seekbar.addNewWaveform(1, new_audio);
-                    });
+                    Thread waveform_generation = new Thread(() -> seekbar.addNewWaveform(1, new_audio));
                     waveform_generation.start();
                 }
             });
@@ -93,17 +110,11 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
                                     FileConverter.extractAudioFromVideo(this, uri, destination_file.getPath(), -1, -1);
 
                                     AudioInfo new_audio = new AudioInfo(this, Uri.fromFile(destination_file));
-                                    AudioPlayerData audio_player_data = AudioPlayerData.getInstance();
                                     audio_player_data.addTrack(2, -1, new_audio);
 
-                                    new Handler().postDelayed(() -> {
-                                        PopupWindow loading_popup_window = DispatchMethods.sendPopup(loading_popup, new Fade(), false);
-                                        seekbar.setWaveFormAddedListener(() -> runOnUiThread(loading_popup_window::dismiss));
-                                    }, AppConstants.getPopupSendDelayMilisec());
+                                    new Handler().postDelayed(loading_popup_dispatch, AppConstants.getPopupSendDelayMilisec());
 
-                                    Thread waveform_generation = new Thread(() -> {
-                                        seekbar.addNewWaveform(2, new_audio);
-                                    });
+                                    Thread waveform_generation = new Thread(() -> seekbar.addNewWaveform(2, new_audio));
                                     waveform_generation.start();
                                 } catch (IOException e) {
                                     e.printStackTrace();
@@ -118,6 +129,8 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        audio_player_data = AudioPlayerData.getInstance();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
 
@@ -138,9 +151,7 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
         add_audio_btn.setOnClickListener(view -> addAudio());
 
         seekbar = findViewById(R.id.editor_waveform_seeker);
-        seekbar.setSeekHoldListener(() -> {
-            play_audio_btn.setImageResource(R.drawable.icon_play);
-        });
+        seekbar.setSeekHoldListener(() -> play_audio_btn.setImageResource(R.drawable.icon_play));
 
         Button record_new_audio_btn = add_audio_popup.findViewById(R.id.add_audio_recording_btn);
 
@@ -153,17 +164,10 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
         final ImageButton back_btn = findViewById(R.id.back_from_editor_btn);
         back_btn.setOnClickListener(view -> AppMethods.finishActivity(this));
 
-        new Handler().postDelayed(() -> {
-            PopupWindow loading_popup_window = DispatchMethods.sendPopup(loading_popup, new Fade(), false);
-            seekbar.setWaveFormsInitializedListener(() -> {
-                runOnUiThread(loading_popup_window::dismiss);
-            });
-        }, AppConstants.getPopupSendDelayMilisec());
+        new Handler().postDelayed(loading_popup_dispatch, AppConstants.getPopupSendDelayMilisec());
 
-        AudioPlayerData.getInstance().initializePlayer(this, findViewById(R.id.editor_fft_visualizer), findViewById(R.id.editor_waveform_seeker), findViewById(R.id.durationText), findViewById(R.id.totalDurationText));
+        audio_player_data.initializePlayer(this, findViewById(R.id.editor_fft_visualizer), findViewById(R.id.editor_waveform_seeker), findViewById(R.id.durationText), findViewById(R.id.totalDurationText));
     }
-
-    // Button actions
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
@@ -185,8 +189,6 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
     }
 
     private void togglePlay() {
-        audio_player_data = AudioPlayerData.getInstance();
-
         ChannelInfo longest_channel = audio_player_data.getChannelList().get(audio_player_data.getLongestChannelIndex());
         MediaPlayer audio_player = longest_channel.getPlayer();
 
@@ -209,7 +211,6 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
         audio_player_data.getChannelList().get(audio_player_data.getLongestChannelIndex()).setPlayerCompletionListener(() -> play_audio_btn.setImageResource(R.drawable.icon_play));
     }
 
-    // Button actions
     private void addAudio() {
         DispatchMethods.sendPopup(add_audio_popup, new Fade(), true);
     }
@@ -226,7 +227,7 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
     protected void onDestroy() {
         super.onDestroy();
 
-        AudioPlayerData.getInstance().endPlayers();
+        audio_player_data.endPlayers();
 
         seekbar.removeWaveform(-1, -1);
     }
@@ -238,7 +239,6 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
 
         switch (editor_tray_id) {
             case DELETE:
-                audio_player_data = AudioPlayerData.getInstance();
                 int selected_waveform_index = seekbar.getSelectedViewIndex();
                 int selected_channel_index = seekbar.getSelectedChannelIndex();
                 if ((selected_channel_index >= 0) && (selected_waveform_index >= 0)) {
@@ -258,6 +258,28 @@ public class EditorActivity extends BaseActivity implements EditorTrayItemAdapte
                     }
                 }
                 break;
+        }
+    }
+
+    private void enableTouchEvents(ViewGroup viewGroup) {
+        viewGroup.setOnTouchListener(null);
+        for (int i = 0; i < viewGroup.getChildCount(); i++) {
+            View child = viewGroup.getChildAt(i);
+            child.setEnabled(true);
+            if (child instanceof ViewGroup) {
+                enableTouchEvents((ViewGroup) child);
+            }
+        }
+    }
+
+    private static void disableTouchEvents(ViewGroup viewGroup) {
+        viewGroup.setOnTouchListener((v, event) -> true);
+        for (int i = 0; i < viewGroup.getChildCount(); i++) {
+            View child = viewGroup.getChildAt(i);
+            child.setEnabled(false);
+            if (child instanceof ViewGroup) {
+                disableTouchEvents((ViewGroup) child);
+            }
         }
     }
 }

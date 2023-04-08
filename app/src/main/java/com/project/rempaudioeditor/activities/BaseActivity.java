@@ -15,10 +15,12 @@ import com.project.rempaudioeditor.enums.ColorId;
 public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        ColorId color_id = AppSettings.getInstance().getColorId();
+        AppSettings settings = AppSettings.getInstance();
+
+        ColorId color_id = settings.getColorId();
         if (color_id != null) {
             if (color_id == ColorId.WALLPAPER) {
-                color_id = AppSettings.getInstance().getWallpaperDominantColorId();
+                color_id = settings.getWallpaperDominantColorId();
             }
             switch (color_id) {
                 case RED:
@@ -42,6 +44,7 @@ public class BaseActivity extends AppCompatActivity {
             }
         }
         super.onCreate(savedInstanceState);
+
         if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
@@ -53,8 +56,7 @@ public class BaseActivity extends AppCompatActivity {
 
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
-        else {
+        } else {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
     }
