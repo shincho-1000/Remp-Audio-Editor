@@ -60,7 +60,7 @@ public class AudioPlayerData {
     }
 
     public void moveTrack(int original_track_channel_index, int original_track_index, int new_track_channel_index , int new_track_index) {
-        if ((original_track_channel_index != new_track_channel_index) && (original_track_index != new_track_index)) {
+        if (!((original_track_channel_index == new_track_channel_index) && (original_track_index == new_track_index))) {
             AudioInfo track = audio_channels.get(original_track_channel_index).getTrackList().get(original_track_index);
             addTrack(new_track_channel_index, new_track_index, track);
             removeTrack(original_track_channel_index, original_track_index);

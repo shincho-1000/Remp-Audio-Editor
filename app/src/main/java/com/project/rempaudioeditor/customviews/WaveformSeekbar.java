@@ -272,15 +272,14 @@ public class WaveformSeekbar extends HorizontalScrollView {
                     ((LinearLayout) getContainer().getChildAt(selected_channel_index)).getChildAt(selected_view_index).setSelected(false);
                 }
 
-                if ((getContainer().indexOfChild(channel_layout) == selected_channel_index)
-                        && (channel_layout.indexOfChild(waveForm) == selected_view_index)) {
-                    waveForm.setSelected(false);
+                if ((getContainer().indexOfChild((View) (waveForm.getParent())) != selected_channel_index)
+                        || (((ViewGroup) (waveForm.getParent())).indexOfChild(waveForm) != selected_view_index)) {
+                    waveForm.setSelected(true);
+                    selected_view_index = ((ViewGroup) (waveForm.getParent())).indexOfChild(waveForm);
+                    selected_channel_index = getContainer().indexOfChild((View) (waveForm.getParent()));
+                } else {
                     selected_channel_index = -1;
                     selected_view_index = -1;
-                } else {
-                    waveForm.setSelected(true);
-                    selected_view_index = channel_layout.indexOfChild(waveForm);
-                    selected_channel_index = getContainer().indexOfChild(channel_layout);
                 }
             });
 
@@ -423,6 +422,9 @@ public class WaveformSeekbar extends HorizontalScrollView {
     }
 
     private void updateWaveformSeekbar() {
+        if (audio_player_data.getLongestChannelIndex() == -1)
+            return;
+
         ChannelInfo channelInfo = audio_player_data.getChannelList().get(audio_player_data.getLongestChannelIndex());
         if ((!channelInfo.getReleased()) && (channelInfo.getPlayer().isPlaying())) {
             setWaveformProgress(channelInfo.getPlayer().getCurrentPosition());

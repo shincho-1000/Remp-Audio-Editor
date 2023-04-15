@@ -1,7 +1,6 @@
 package com.project.rempaudioeditor.constants;
 
 import static com.project.rempaudioeditor.enums.EditorTrayId.DELETE;
-import static com.project.rempaudioeditor.enums.EditorTrayId.MUTE;
 import static com.project.rempaudioeditor.enums.EditorTrayId.RECORD;
 import static com.project.rempaudioeditor.enums.EditorTrayId.SPLIT;
 import static com.project.rempaudioeditor.enums.EditorTrayId.TRIM;
@@ -89,7 +88,6 @@ public class RecyclerViewItems {
         final ArrayList<EditorTrayItemInfo> itemList = new ArrayList<>();
 
         itemList.add(new EditorTrayItemInfo("Volume", R.drawable.icon_volume, VOLUME));
-        itemList.add(new EditorTrayItemInfo("Mute", R.drawable.icon_mute, MUTE));
         itemList.add(new EditorTrayItemInfo("Trim", R.drawable.icon_trim, TRIM));
         itemList.add(new EditorTrayItemInfo("Record", R.drawable.icon_audio, RECORD));
         itemList.add(new EditorTrayItemInfo("Delete", R.drawable.icon_delete_editor, DELETE));

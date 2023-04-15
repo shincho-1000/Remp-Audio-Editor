@@ -2,6 +2,7 @@ package com.project.rempaudioeditor.activities;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -129,7 +130,7 @@ public class RecorderActivity extends BaseActivity {
                 public void run() {
                     if (audio_recorder_data.ifRecording()) {
                         timer_notification_handler.postDelayed(this, NOTIFICATION_UPDATE_DELAY_MILISEC);
-                        sendRecordingNotification("Recording...");
+                        sendRecordingNotification(false);
                     }
                 }
             }, NOTIFICATION_UPDATE_DELAY_MILISEC);
@@ -144,7 +145,7 @@ public class RecorderActivity extends BaseActivity {
                     public void run() {
                         if (audio_recorder_data.ifRecording()) {
                             timer_notification_handler.postDelayed(this, NOTIFICATION_UPDATE_DELAY_MILISEC);
-                            sendRecordingNotification("Recording...");
+                            sendRecordingNotification(false);
                         }
                     }
                 }, NOTIFICATION_UPDATE_DELAY_MILISEC);
@@ -154,7 +155,7 @@ public class RecorderActivity extends BaseActivity {
                 recorder_timer.stop();
                 recorder_toggle_btn.setImageResource(R.drawable.icon_mic);
 
-                sendRecordingNotification("Recording - Paused");
+                sendRecordingNotification(true);
             }
         }
     }
@@ -225,18 +226,42 @@ public class RecorderActivity extends BaseActivity {
         }
     }
 
-    public void sendRecordingNotification(String title) {
+    public void sendRecordingNotification(boolean is_paused) {
+        String content;
+        int drawable_toggle;
+        String content_if_paused = "Paused";
+        String content_if_not_paused = "Recording";
+
+        if (is_paused) {
+            content = content_if_paused;
+            drawable_toggle = R.drawable.icon_play;
+        }
+        else {
+            content = content_if_not_paused;
+            drawable_toggle = R.drawable.icon_pause;
+        }
+
+        Intent intent = new Intent(this.getApplicationContext(), RecorderActivity.class);
+        intent.setAction(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
         NotificationCompat.Builder notification_builder = new NotificationCompat.Builder(this, "RempAudioEditorNotification")
-                .setContentTitle(title)
-                .setContentText(recorder_timer.getText())
+                .setContentTitle("Remp Audio Recorder")
+                .setContentText(content)
                 .setSmallIcon(R.drawable.app_logo)
-                .addAction(R.drawable.icon_play, "Toggle", AppMethods.makePendingIntent(this, ACTION_TOGGLE, recording_receiver))
+                .addAction(drawable_toggle, "Toggle", AppMethods.makePendingIntent(this, ACTION_TOGGLE, recording_receiver))
                 .addAction(R.drawable.icon_stop, "Stop", AppMethods.makePendingIntent(this, ACTION_STOP, recording_receiver))
                 .addAction(R.drawable.icon_delete, "Delete", AppMethods.makePendingIntent(this, ACTION_DELETE, recording_receiver))
+                .setContentIntent(pendingIntent)
                 .setStyle(new androidx.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(0,1,2))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setOnlyAlertOnce(true)
-                .setOngoing(true);
+                .setOngoing(true)
+                .setAutoCancel(false);
 
         recording_notification_manager.notify(NotificationIds.getRecordingNotificationId(), notification_builder.build());
     }

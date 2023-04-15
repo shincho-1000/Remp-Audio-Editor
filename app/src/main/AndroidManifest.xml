@@ -50,7 +50,8 @@
 
         <activity
             android:name="com.project.rempaudioeditor.activities.RecorderActivity"
-            android:parentActivityName="com.project.rempaudioeditor.activities.MainActivity">
+            android:parentActivityName="com.project.rempaudioeditor.activities.MainActivity"
+            android:launchMode="singleTop">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.project.rempaudioeditor.activities.MainActivity" />
